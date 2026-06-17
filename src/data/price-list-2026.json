@@ -1,0 +1,427 @@
+{
+  "currency": "USD",
+  "year": 2026,
+  "source": "Silencer_Chute_Combined_Price_List_2026.xlsx (QuickBooks-reconciled)",
+  "models": [
+    {
+      "model": "Ranch",
+      "base_price": 12718.0,
+      "base_qb_id": 326,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Hydraulic Lower Squeeze", "price": 1448.0, "qb_id": 318, "qb_name": "Hydraulic Lower - Standard"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Yoke Carrier", "price": 4429.0, "qb_id": 307, "qb_name": "Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Carry-All Carrier", "price": 6862.0, "qb_id": 305, "qb_name": "Carry-All Carrier"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "Ranch Wide",
+      "base_price": 14957.0,
+      "base_qb_id": 799,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Hydraulic Lower Squeeze", "price": 2175.0, "qb_id": 801, "qb_name": "Hydraulic Lower - Wide Body"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Yoke Carrier", "price": 4429.0, "qb_id": 307, "qb_name": "Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Carry-All Carrier", "price": 6862.0, "qb_id": 305, "qb_name": "Carry-All Carrier"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "Heavy Duty",
+      "base_price": 14993.0,
+      "base_qb_id": 340,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Rebar Floor", "price": 460.0, "qb_id": 379, "qb_name": "Rebar Floor"},
+          {"name": "Hydraulic Lower Squeeze", "price": 1837.0, "qb_id": 1454, "qb_name": "Hydraulic Lower Squeeze Xtra Power Std Width"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Carry-All Carrier", "price": 6862.0, "qb_id": 305, "qb_name": "Carry-All Carrier"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "HD Wide",
+      "base_price": 17661.0,
+      "base_qb_id": 802,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Rebar Floor", "price": 460.0, "qb_id": 379, "qb_name": "Rebar Floor"},
+          {"name": "Hydraulic Lower Squeeze", "price": 2564.0, "qb_id": 1453, "qb_name": "Hydraulic Lower Squeeze Xtra Power WB"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Carry-All Carrier", "price": 6862.0, "qb_id": 305, "qb_name": "Carry-All Carrier"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "C PRO",
+      "base_price": 16690.0,
+      "base_qb_id": 333,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Rebar Floor", "price": 460.0, "qb_id": 379, "qb_name": "Rebar Floor"},
+          {"name": "Hydraulic Lower Squeeze", "price": 1837.0, "qb_id": 1454, "qb_name": "Hydraulic Lower Squeeze Xtra Power Std Width"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "C PRO Wide",
+      "base_price": 19764.0,
+      "base_qb_id": 822,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Rebar Floor", "price": 460.0, "qb_id": 379, "qb_name": "Rebar Floor"},
+          {"name": "Hydraulic Lower Squeeze", "price": 2564.0, "qb_id": 1453, "qb_name": "Hydraulic Lower Squeeze Xtra Power WB"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Heavy Yoke Carrier", "price": 5927.0, "qb_id": 306, "qb_name": "Heavy Yoke Carrier"},
+          {"name": "Heavy Yoke Carrier for Extended Silencer", "price": 6427.0, "qb_id": 1545, "qb_name": "Heavy Yoke Carrier - EXTENDED Length"},
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "MAXX",
+      "base_price": 20584.0,
+      "base_qb_id": 692,
+      "sections": {
+        "Chute & Options": [
+          {"name": "Rebar Floor", "price": 460.0, "qb_id": 379, "qb_name": "Rebar Floor"},
+          {"name": "Hydraulic Lower Squeeze", "price": 2564.0, "qb_id": 665, "qb_name": "MAXX Lower squeeze"},
+          {"name": "Pivot Controls", "price": 1093.0, "qb_id": 324, "qb_name": "Pivot Controls"},
+          {"name": "Pivot on Overhead Scales", "price": 1408.0, "qb_id": 323, "qb_name": "Pivot on Overhead Scales"},
+          {"name": "Controls Side / Dual Controls", "price": 2523.0, "qb_id": 322, "qb_name": "Dual Controls"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Side Exit (Per Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Quick-Action Slam Shut Side Exit", "price": 507.0, "qb_id": 940, "qb_name": "Quick Action Slam Shut Side Exi"},
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Vertical Split Droppan", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Easy Access Lower Leg Door", "price": 641.0, "qb_id": 939, "qb_name": "Easy Access Lower Leg Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Hydraulic Belly Bar", "price": 1600.0, "qb_id": 1482, "qb_name": "Belly Bar"},
+          {"name": "Rear Frame Hook-up", "price": 367.0, "qb_id": 327, "qb_name": "Rear Frame Hook Up"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric CLOSED CENTER Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"},
+          {"name": "Gas Powered CLOSED CENTER Hyd Pump (12HP)* + ELECTRIC START", "price": 5422.0, "qb_id": 1546, "qb_name": "Gas Pump 12 HP Closed Center"}
+        ],
+        "Scales": [
+          {"name": "TruTest Platform Scales with S3 Indicator", "price": 4025.0, "qb_id": 1547, "qb_name": "TruTest Platform Scales with S3 Indicator"},
+          {"name": "Weigh-Tronix Platform Scales with 640 Indicator", "price": 3997.0, "qb_id": 1548, "qb_name": "Weigh-Tronix Platform Scales with 640 Indicator"},
+          {"name": "Weigh-Tronix Overhead Scales", "price": 7801.0, "qb_id": 1288, "qb_name": "Weigh-Tronix Overhead Scales"},
+          {"name": "Weigh-Tronix Overhead Scales for Extended Chute", "price": 8264.0, "qb_id": 1177, "qb_name": "Weigh-Tronix Overhead scales EX"}
+        ],
+        "Carrier": [
+          {"name": "Std Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"},
+          {"name": "Ext Length Hydraulic Yoke Carrier", "price": 13180.0, "qb_id": 913, "qb_name": "Hydraulic Yoke Trailer"}
+        ]
+      }
+    },
+    {
+      "model": "Tilt",
+      "base_price": 14993.0,
+      "base_qb_id": 340,
+      "sections": {
+        "Options": [
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Side Exit (Not Available on Tilt Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Xtra Power Hydraulic Lower Squeeze", "price": 1837.0, "qb_id": 1454, "qb_name": "Hydraulic Lower Squeeze Xtra Power Std Width"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Vertical Split Droppan (Not Available on Tilt Side)", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Horizontal Split Droppan (Not Available on Tilt Side)", "price": 386.0, "qb_id": 342, "qb_name": "Horz. Split Droppan"},
+          {"name": "Stand Alone Rear Gate", "price": 3606.0, "qb_id": 1516, "qb_name": "Stand Alone Rear Gate"},
+          {"name": "Hydraulic Leg Restraint", "price": 1920.0, "qb_id": 1520, "qb_name": "Hydraulic Leg Restraint"},
+          {"name": "Hydraulic Leg Puller (Not Available on Tilt Side)", "price": 1920.0, "qb_id": 1452, "qb_name": "Hydraulic leg puller"},
+          {"name": "Hydraulic Calf Puller", "price": 1944.0, "qb_id": 1549, "qb_name": "Hydraulic Calf Puller"},
+          {"name": "Hydraulic Kick Bar", "price": 2055.0, "qb_id": 310, "qb_name": "Hydraulic Kick Bar"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric Closed Center Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (5.5HP)*", "price": 2946.0, "qb_id": 111, "qb_name": "Gas Pump 6 HP"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"}
+        ],
+        "Scales": [
+          {"name": "Weigh-Tronix Platform Scales (6-Load Bar System)", "price": 5894.0, "qb_id": 1178, "qb_name": "Weigh-Tronix Platform Scales"}
+        ]
+      }
+    },
+    {
+      "model": "Tilt Wide",
+      "base_price": 17661.0,
+      "base_qb_id": 802,
+      "sections": {
+        "Options": [
+          {"name": "Rubber-Belted Louvers on Sidegates", "price": 498.0, "qb_id": 321, "qb_name": "Rubber Belted Louvers"},
+          {"name": "Short Yearling Sidegate", "price": 398.0, "qb_id": 320, "qb_name": "Short Yearling Sidegate"},
+          {"name": "Side Exit (Not Available on Tilt Side)", "price": 374.0, "qb_id": 319, "qb_name": "Side Exit"},
+          {"name": "Additional Neck Access (Per Sidegate)", "price": 100.0, "qb_id": 315, "qb_name": "Additional Neck  Access"},
+          {"name": "Xtra Power Hydraulic Lower Squeeze - Reinforced Longer Travel", "price": 2564.0, "qb_id": 1453, "qb_name": "Hydraulic Lower Squeeze Xtra Power WB"},
+          {"name": "Neckbar", "price": 156.0, "qb_id": 314, "qb_name": "Neckbar"},
+          {"name": "Hydraulic Neck Extender Bars (2 Neck Bars Included)", "price": 2206.0, "qb_id": 313, "qb_name": "Hydraulic Neck Extender Bars"},
+          {"name": "Hydraulic Head Restraint", "price": 831.0, "qb_id": 317, "qb_name": "Hydraulic Head Restraint"},
+          {"name": "De-Horner Head Restraint", "price": 665.0, "qb_id": 1324, "qb_name": "De-Horner Head Restraint"},
+          {"name": "Rear Walk-Through Door (26\") (Per Side)", "price": 341.0, "qb_id": 316, "qb_name": "Rear Walk-through Door"},
+          {"name": "Brisket Bar", "price": 358.0, "qb_id": 311, "qb_name": "Brisket Bar - Silencer"},
+          {"name": "Vertical Split Droppan (Not Available on Tilt Side)", "price": 276.0, "qb_id": 343, "qb_name": "Vertical Split Droppan"},
+          {"name": "Horizontal Split Droppan (Not Available on Tilt Side)", "price": 386.0, "qb_id": 342, "qb_name": "Horz. Split Droppan"},
+          {"name": "Stand Alone Rear Gate", "price": 3606.0, "qb_id": 1516, "qb_name": "Stand Alone Rear Gate"},
+          {"name": "Hydraulic Leg Restraint", "price": 1920.0, "qb_id": 1520, "qb_name": "Hydraulic Leg Restraint"},
+          {"name": "Hydraulic Leg Puller (Not Available on Tilt Side)", "price": 1920.0, "qb_id": 1452, "qb_name": "Hydraulic leg puller"},
+          {"name": "Hydraulic Calf Puller", "price": 1944.0, "qb_id": 1549, "qb_name": "Hydraulic Calf Puller"},
+          {"name": "Hydraulic Kick Bar", "price": 2055.0, "qb_id": 310, "qb_name": "Hydraulic Kick Bar"},
+          {"name": "Grooming Bars", "price": 440.0, "qb_id": 341, "qb_name": "Grooming/Fitting Bars"}
+        ],
+        "Power Supply": [
+          {"name": "5 HP Electric Hydraulic Pump 60 Hz", "price": 2324.0, "qb_id": 309, "qb_name": "5 HP Electric Pump"},
+          {"name": "5 HP Electric Hydraulic Pump with Pressure Relief Valve and Quick Couplers 60 Hz", "price": 2736.0, "qb_id": 308, "qb_name": "5 HP Electric Pump w/Bypass"},
+          {"name": "7.5 HP Electric Closed Center Hydraulic Pump 60 Hz", "price": 5830.0, "qb_id": 1080, "qb_name": "7.5 HP 1PH Pump"},
+          {"name": "Gas Powered Hydraulic Pump (5.5HP)*", "price": 2946.0, "qb_id": 111, "qb_name": "Gas Pump 6 HP"},
+          {"name": "Gas Powered Hydraulic Pump (12HP)* + ELECTRIC START", "price": 3748.0, "qb_id": 912, "qb_name": "Gas Pump 12 HP"}
+        ],
+        "Scales": [
+          {"name": "Weigh-Tronix Platform Scales (6-Load Bar System)", "price": 5894.0, "qb_id": 1178, "qb_name": "Weigh-Tronix Platform Scales"}
+        ]
+      }
+    }
+  ]
+}
