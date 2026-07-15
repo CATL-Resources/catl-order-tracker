@@ -37,10 +37,20 @@ jobs:
           
           for fn in $FUNCTIONS; do
             if [ -f "supabase/functions/$fn/index.ts" ]; then
-              echo "Deploying $fn..."
-              supabase functions deploy "$fn" \
-                --project-ref "$PROJECT_REF" \
-                --no-verify-jwt
+              # Per-function JWT policy: functions default to --no-verify-jwt
+              # (webhooks, upload endpoints, OAuth callbacks, public pages).
+              # A function that must require a valid JWT opts in by placing an
+              # empty `verify_jwt` marker file in its directory.
+              if [ -f "supabase/functions/$fn/verify_jwt" ]; then
+                echo "Deploying $fn (JWT verification ENABLED)..."
+                supabase functions deploy "$fn" \
+                  --project-ref "$PROJECT_REF"
+              else
+                echo "Deploying $fn (JWT verification disabled)..."
+                supabase functions deploy "$fn" \
+                  --project-ref "$PROJECT_REF" \
+                  --no-verify-jwt
+              fi
             else
               echo "Skipping $fn (no index.ts found)"
             fi
