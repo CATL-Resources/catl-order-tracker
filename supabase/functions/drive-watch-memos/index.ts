@@ -1,8 +1,10 @@
-// drive-watch-memos v12 — Fix AMR files not found in Cube ACR date subfolders
-// Changes from v11:
-// 1. driveGetAllFilesInFolder — broad search for Cube ACR subfolders (AMR files
-//    stored as application/octet-stream in Drive, missed by audio mime filter)
-// 2. shouldSkipFile handles filtering non-audio out after the broader fetch
+// drive-watch-memos v14 — instrumented + batched (diagnostic build)
+// Why: after the Google token was reconnected 2026-07-15, .json sidecars still
+// process but .amr audio has produced nothing since 2026-05-06. This build adds
+// verbose console logging (scan/dedup/per-file outcome + errors) so the exact
+// failing step shows up in the Supabase edge-function logs, and processes a
+// small batch per run so a single failing file can't stall the whole queue.
+// No processing logic changed — only logging + the one-file→batch loop.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Content-Type": "application/json" };
@@ -57,7 +59,7 @@ async function refreshGoogleToken(supabase: any, tokenRow: any): Promise<string>
 
 async function driveSearch(token: string, query: string): Promise<any[]> {
   const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,size,createdTime,parents)&orderBy=createdTime desc&pageSize=50`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) return [];
+  if (!r.ok) { console.error("[dwm] driveSearch failed", r.status, query.slice(0, 80)); return []; }
   return (await r.json()).files || [];
 }
 async function driveGetSubfolders(token: string, parentId: string): Promise<any[]> {
@@ -189,7 +191,7 @@ async function processFile(supabase: any, accessToken: string, file: any, source
         { drive_file_id: file.id, file_name: file.name, memo_id: null },
         { onConflict: "drive_file_id" }
       );
-      fr.error = `DL ${dl.status} — skipped permanently`; return fr;
+      fr.error = `DL ${dl.status} — skipped permanently`; console.error("[dwm] download failed", file.name, dl.status); return fr;
     }
     const ab = await dl.arrayBuffer();
     const rb = file.name.toLowerCase().includes("chandy") ? "chandy" : "tim";
@@ -203,7 +205,7 @@ async function processFile(supabase: any, accessToken: string, file: any, source
     const srcApp = getSourceApp(file.name, sourceFolder);
 
     const { error: ue } = await supabase.storage.from("voice-memos").upload(sp, ab, { contentType: mt, upsert: false });
-    if (ue) { fr.error = `Upload: ${ue.message}`; return fr; }
+    if (ue) { fr.error = `Upload: ${ue.message}`; console.error("[dwm] storage upload failed", file.name, ue.message); return fr; }
 
     const { transcript, confidence, duration } = await transcribeWithDeepgram(ab, mt);
     fr.duration = duration;
@@ -217,7 +219,7 @@ async function processFile(supabase: any, accessToken: string, file: any, source
         processing_status: transcript ? "transcribed" : "complete",
         call_date: file.createdTime || new Date().toISOString(),
       }).select("id").single();
-      if (ie || !callRow) { fr.error = `Insert call_log: ${ie?.message}`; return fr; }
+      if (ie || !callRow) { fr.error = `Insert call_log: ${ie?.message}`; console.error("[dwm] call_log insert failed", file.name, ie?.message); return fr; }
       fr.call_id = callRow.id;
 
       if (!transcript) {
@@ -273,7 +275,7 @@ async function processFile(supabase: any, accessToken: string, file: any, source
         drive_file_id: file.id, source_app: srcApp,
         ...(transcript ? {} : { ai_summary: "No speech", memo_type: "general:empty" }),
       }).select("id, transcript, audio_file_name").single();
-      if (ie || !memo) { fr.error = `Insert: ${ie?.message}`; return fr; }
+      if (ie || !memo) { fr.error = `Insert: ${ie?.message}`; console.error("[dwm] voice_memos insert failed", file.name, ie?.message); return fr; }
       fr.memo_id = memo.id;
 
       await supabase.from("processed_drive_files").upsert({ drive_file_id: file.id, file_name: file.name, memo_id: memo.id }, { onConflict: "drive_file_id" });
@@ -298,7 +300,7 @@ async function processFile(supabase: any, accessToken: string, file: any, source
       const tc = await createTasksIfNoneExist(supabase, memo.id, "voice_memo", allTasks, cid, ex.summary);
       fr.success = true; fr.category = cat; fr.summary = ex.summary; fr.tasks_created = tc;
     }
-  } catch (e: any) { fr.error = e.message; }
+  } catch (e: any) { fr.error = e?.message || String(e); console.error("[dwm] processFile threw", file.name, fr.error); }
   return fr;
 }
 
@@ -315,6 +317,7 @@ Deno.serve(async (req) => {
       .order("created_at", { ascending: true }).limit(1);
     if (stuckMemos?.length) {
       const memo = stuckMemos[0];
+      console.log("[dwm] retry_stuck branch (skips Drive scan this run)", JSON.stringify({ memo_id: memo.id, file: memo.audio_file_name }));
       try {
         await supabase.from("voice_memos").update({ processing_status: "extracting" }).eq("id", memo.id);
         const parsed = parseContactFromFilename(memo.audio_file_name || "");
@@ -337,7 +340,7 @@ Deno.serve(async (req) => {
     }
 
     const { data: tokenRow } = await supabase.from("google_tokens").select("*").limit(1).single();
-    if (!tokenRow) return new Response(JSON.stringify({ success: false, error: "No Google token" }), { status: 200, headers: cors });
+    if (!tokenRow) { console.error("[dwm] no Google token row"); return new Response(JSON.stringify({ success: false, error: "No Google token" }), { status: 200, headers: cors }); }
     const accessToken = await refreshGoogleToken(supabase, tokenRow);
 
     let explicitFolderId = "";
@@ -366,7 +369,7 @@ Deno.serve(async (req) => {
         }
       }
     }
-    if (!foldersToScan.length) return new Response(JSON.stringify({ success: false, error: "No voice/call folders found" }), { status: 200, headers: cors });
+    if (!foldersToScan.length) { console.error("[dwm] no folders to scan"); return new Response(JSON.stringify({ success: false, error: "No voice/call folders found" }), { status: 200, headers: cors }); }
 
     const allFiles: { file: any; sourceFolder: string; isCall: boolean }[] = [];
     for (const folder of foldersToScan) {
@@ -378,6 +381,7 @@ Deno.serve(async (req) => {
       // v12: Cube ACR root — recurse into date subfolders with broad file fetch
       if (folder.name === "Cube ACR" || folder.name === "explicit") {
         const dateFolders = await driveGetSubfolders(accessToken, folder.id);
+        console.log("[dwm] cube date subfolders found", dateFolders.length, JSON.stringify(dateFolders.slice(0, 5).map((d: any) => d.name)));
         for (const dateFolder of dateFolders) {
           // v12: Use broad search — AMR files stored as octet-stream, missed by audio mime filter
           const subFiles = await driveGetAllFilesInFolder(accessToken, dateFolder.id);
@@ -389,28 +393,39 @@ Deno.serve(async (req) => {
       }
     }
 
+    console.log("[dwm] scan complete", JSON.stringify({ folders_scanned: foldersToScan.length, total_files: allFiles.length, ext_counts: allFiles.reduce((a: any, f: any) => { const e = (f.file.name.split(".").pop() || "?").toLowerCase(); a[e] = (a[e] || 0) + 1; return a; }, {}) }));
     if (!allFiles.length) return new Response(JSON.stringify({ success: true, message: "No audio files", folders_scanned: foldersToScan.map(f => f.name), processed: 0 }), { status: 200, headers: cors });
 
     const allIds = allFiles.map(f => f.file.id);
-    const { data: ledgerRows } = await supabase.from("processed_drive_files").select("drive_file_id").in("drive_file_id", allIds);
-    const { data: existById } = await supabase.from("voice_memos").select("drive_file_id").in("drive_file_id", allIds);
+    const { data: ledgerRows, error: ledgerErr } = await supabase.from("processed_drive_files").select("drive_file_id").in("drive_file_id", allIds);
+    const { data: existById, error: existErr } = await supabase.from("voice_memos").select("drive_file_id").in("drive_file_id", allIds);
+    if (ledgerErr) console.error("[dwm] ledger dedup query error", ledgerErr.message);
+    if (existErr) console.error("[dwm] voice_memos dedup query error", existErr.message);
     const doneIds = new Set([
       ...(ledgerRows || []).map((e: any) => e.drive_file_id),
       ...(existById || []).map((e: any) => e.drive_file_id),
     ]);
     const newFiles = allFiles.filter(f => !doneIds.has(f.file.id));
+    console.log("[dwm] dedup", JSON.stringify({ ledger_rows: ledgerRows?.length ?? null, exist_rows: existById?.length ?? null, done_ids: doneIds.size, new_found: newFiles.length, sample_new: newFiles.slice(0, 8).map((f: any) => f.file.name) }));
 
     if (!newFiles.length) return new Response(JSON.stringify({ success: true, message: "All processed", folders_scanned: foldersToScan.map(f => f.name), total_files: allFiles.length, processed: 0 }), { status: 200, headers: cors });
 
-    const toProcess = newFiles[0];
-    const result = await processFile(supabase, accessToken, toProcess.file, toProcess.sourceFolder, toProcess.isCall);
-    results.push(result);
+    // Process a batch per run (was one file) so a single failing file cannot stall the whole queue.
+    const BATCH = 5;
+    for (const nf of newFiles.slice(0, BATCH)) {
+      const result = await processFile(supabase, accessToken, nf.file, nf.sourceFolder, nf.isCall);
+      results.push(result);
+      console.log("[dwm] processed", JSON.stringify({ file: nf.file.name, success: !!result.success, skipped: !!result.skipped, routed_to: result.routed_to ?? null, error: result.error ?? null }));
+    }
 
-    return new Response(JSON.stringify({
+    const finalResp = {
       success: true, folders_scanned: foldersToScan.map(f => f.name),
-      total_files: allFiles.length, new_found: newFiles.length, remaining: newFiles.length - 1, results,
-    }), { status: 200, headers: cors });
+      total_files: allFiles.length, new_found: newFiles.length, remaining: Math.max(0, newFiles.length - results.length), results,
+    };
+    console.log("[dwm] response", JSON.stringify({ total_files: finalResp.total_files, new_found: finalResp.new_found, processed: results.length, remaining: finalResp.remaining }));
+    return new Response(JSON.stringify(finalResp), { status: 200, headers: cors });
   } catch (e: any) {
+    console.error("[dwm] handler threw", e?.message || String(e));
     return new Response(JSON.stringify({ success: false, error: e.message }), { status: 200, headers: cors });
   }
 });
