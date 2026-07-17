@@ -67,3 +67,26 @@ Captured 2026-07-15 via Supabase MCP `list_edge_functions`. **54 live functions.
 **Live but missing from git (3):** qb-refresh-token, qb-lookup-pos-by-docnumber, freight-share
 
 Note: a large cluster of functions shows `updated 2026-07-06` — a bulk redeploy (the QB 'Retired —' stubs and other housekeeping), unrelated to the death window.
+
+---
+
+## drive-watch-memos — call/memo dedup (v15, 2026-07-17)
+- **The bug it fixes:** the function wrote a `voice_memos` row for every call *in
+  addition to* the canonical `call_log` row, so one recording produced two
+  transcripts. `call_log` is canonical for calls; `voice_memos` is memos only.
+- **Skip / guard rules now in the function:**
+  1. Calls route to `call_log` ONLY — the duplicate `voice_memos` insert is
+     removed.
+  2. Recording-key idempotency check before any work: derive the stable key
+     (`${recordedBy}_${sanitizedFilename}`, i.e. the stored path minus the upload
+     timestamp — the same key the Hub screen-side dedupe uses) and skip if a
+     `call_log` OR `voice_memos` row already carries it. Logs `duplicate-prevented`.
+  3. Backed by a DB unique index on `voice_memos(recording_key)` (migration
+     `20260717000000_voice_memos_recording_key_guard.sql`) so no future code
+     change can reintroduce the dup.
+- **Census flag — bucket naming:** calls do NOT live in the `call-recordings`
+  bucket (it is **empty / unused**). Both calls and memos land in the
+  `voice-memos` bucket; calls under the `calls/` prefix. `process-call-recording`
+  (the legacy BCR push path → `call-recordings`) is currently dormant — 0 calls
+  in the last 7 days; **drive-watch-memos is the live call source.** Flagging the
+  bucket naming for the census; not renaming anything now.

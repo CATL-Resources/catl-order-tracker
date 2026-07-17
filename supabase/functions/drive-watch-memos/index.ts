@@ -1,10 +1,15 @@
-// drive-watch-memos v14 — instrumented + batched (diagnostic build)
-// Why: after the Google token was reconnected 2026-07-15, .json sidecars still
-// process but .amr audio has produced nothing since 2026-05-06. This build adds
-// verbose console logging (scan/dedup/per-file outcome + errors) so the exact
-// failing step shows up in the Supabase edge-function logs, and processes a
-// small batch per run so a single failing file can't stall the whole queue.
-// No processing logic changed — only logging + the one-file→batch loop.
+// drive-watch-memos v15 — stop double-transcribing calls (durable dedup)
+// Why: a call recording was landing in BOTH call_log AND voice_memos (this
+// function used to insert a voice_memos copy for every call). call_log is
+// canonical for calls; voice_memos is for memos only. Two guards now enforce
+// "one recording -> one transcript":
+//   1. Recording-key idempotency check BEFORE any work — if a call_log OR
+//      voice_memos row already exists for this recording, skip + log
+//      `duplicate-prevented`. (Belt on top of the drive_file_id ledger.)
+//   2. Calls route to call_log ONLY — the duplicate voice_memos insert is gone.
+// A DB-level unique index on voice_memos(recording_key) backs this up so it
+// survives future code changes (see migration voice_memos_recording_key_guard).
+// v14 diagnostics (verbose logging + per-run batch) are retained.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Content-Type": "application/json" };
@@ -185,6 +190,27 @@ async function processFile(supabase: any, accessToken: string, file: any, source
     fr.is_call = isCallRecording;
     fr.parsed_contact = contactName;
 
+    // ── Idempotency guard: one recording must NEVER produce two transcripts ──
+    // Derive the recording key the Hub's screen-side dedupe matches on (the
+    // stored path minus the leading upload-timestamp — the stable tail is
+    // `${recordedBy}_${sanitizedFilename}`). If a call_log OR voice_memos row
+    // already carries this recording, skip before spending download/Deepgram.
+    const rb = file.name.toLowerCase().includes("chandy") ? "chandy" : "tim";
+    const recKey = `${rb}_${sanitizeStoragePath(file.name)}`;
+    const [dupCallRes, dupMemoRes] = await Promise.all([
+      supabase.from("call_log").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
+      supabase.from("voice_memos").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
+    ]);
+    if ((dupCallRes.data?.length ?? 0) > 0 || (dupMemoRes.data?.length ?? 0) > 0) {
+      await supabase.from("processed_drive_files").upsert(
+        { drive_file_id: file.id, file_name: file.name, memo_id: null },
+        { onConflict: "drive_file_id" }
+      );
+      fr.skipped = true; fr.reason = "duplicate-prevented";
+      console.log("[dwm] duplicate-prevented", JSON.stringify({ file: file.name, recording_key: recKey, in_call_log: (dupCallRes.data?.length ?? 0) > 0 }));
+      return fr;
+    }
+
     const dl = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });
     if (!dl.ok) {
       await supabase.from("processed_drive_files").upsert(
@@ -194,7 +220,6 @@ async function processFile(supabase: any, accessToken: string, file: any, source
       fr.error = `DL ${dl.status} — skipped permanently`; console.error("[dwm] download failed", file.name, dl.status); return fr;
     }
     const ab = await dl.arrayBuffer();
-    const rb = file.name.toLowerCase().includes("chandy") ? "chandy" : "tim";
     const ext = file.name.toLowerCase().split(".").pop() || "m4a";
     const mm: Record<string, string> = { m4a: "audio/mp4", mp3: "audio/mpeg", ogg: "audio/ogg", wav: "audio/wav", amr: "audio/amr", webm: "audio/webm", aac: "audio/aac", flac: "audio/flac" };
     const mt = mm[ext] || "audio/amr"; // default to audio/amr for Cube ACR files
@@ -223,17 +248,12 @@ async function processFile(supabase: any, accessToken: string, file: any, source
       fr.call_id = callRow.id;
 
       if (!transcript) {
-        await supabase.from("voice_memos").insert({
-          audio_storage_path: sp, audio_file_name: file.name, audio_file_size_bytes: ab.byteLength,
-          duration_seconds: duration, processing_status: "complete", drive_file_id: file.id,
-          source_app: srcApp, recorded_by: rb, ai_summary: "No speech detected", memo_type: "general:empty",
-        });
+        // call_log only — no duplicate voice_memos row for a call.
         await supabase.from("processed_drive_files").upsert({ drive_file_id: file.id, file_name: file.name, memo_id: null }, { onConflict: "drive_file_id" });
         fr.summary = "No speech"; fr.success = true; return fr;
       }
 
       const ex = await extractWithClaude(transcript, true, contactName);
-      const cat = ex.category || "general";
       const customerName = contactName || ex.customer_name;
       const customer = await matchCustomer(supabase, customerName);
       const cid = customer?.id || null;
@@ -247,18 +267,10 @@ async function processFile(supabase: any, accessToken: string, file: any, source
         processing_status: "complete",
       }).eq("id", callRow.id);
 
-      const { data: memoRow } = await supabase.from("voice_memos").insert({
-        audio_storage_path: sp, audio_file_name: file.name, audio_file_size_bytes: ab.byteLength,
-        duration_seconds: duration, transcript, transcription_confidence: confidence,
-        processing_status: "complete", drive_file_id: file.id,
-        source_app: srcApp, recorded_by: rb,
-        ai_summary: ex.summary,
-        memo_type: `${cat}:${ex.memo_type || "customer_interaction"}`,
-        customer_name_detected: detectedName, customer_id: cid,
-        equipment_mentioned: ex.equipment_mentioned || [], commitments: ex.commitments || [],
-      }).select("id").single();
-
-      await supabase.from("processed_drive_files").upsert({ drive_file_id: file.id, file_name: file.name, memo_id: memoRow?.id || null }, { onConflict: "drive_file_id" });
+      // call_log is canonical for calls — do NOT write a duplicate voice_memos
+      // row here (this was the double-transcription bug). Ledger the Drive file
+      // so it is never reprocessed.
+      await supabase.from("processed_drive_files").upsert({ drive_file_id: file.id, file_name: file.name, memo_id: null }, { onConflict: "drive_file_id" });
 
       const allTasks = [...(ex.tasks_to_create || [])];
       for (const c of (ex.commitments || [])) {
