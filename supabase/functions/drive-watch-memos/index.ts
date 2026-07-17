@@ -7,8 +7,10 @@
 //      voice_memos row already exists for this recording, skip + log
 //      `duplicate-prevented`. (Belt on top of the drive_file_id ledger.)
 //   2. Calls route to call_log ONLY — the duplicate voice_memos insert is gone.
-// A DB-level unique index on voice_memos(recording_key) backs this up so it
-// survives future code changes (see migration voice_memos_recording_key_guard).
+// A DB-level unique index on voice_memos(drive_file_id) backs this up so a
+// re-processed Drive file can never create a second memo (migration
+// voice_memos_drive_file_id_guard). Note: the recording-key check is calls-only
+// because memo filenames repeat ("My recording 2.mp3") and aren't a safe key.
 // v14 diagnostics (verbose logging + per-run batch) are retained.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
@@ -190,25 +192,31 @@ async function processFile(supabase: any, accessToken: string, file: any, source
     fr.is_call = isCallRecording;
     fr.parsed_contact = contactName;
 
-    // ── Idempotency guard: one recording must NEVER produce two transcripts ──
-    // Derive the recording key the Hub's screen-side dedupe matches on (the
-    // stored path minus the leading upload-timestamp — the stable tail is
-    // `${recordedBy}_${sanitizedFilename}`). If a call_log OR voice_memos row
-    // already carries this recording, skip before spending download/Deepgram.
     const rb = file.name.toLowerCase().includes("chandy") ? "chandy" : "tim";
-    const recKey = `${rb}_${sanitizeStoragePath(file.name)}`;
-    const [dupCallRes, dupMemoRes] = await Promise.all([
-      supabase.from("call_log").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
-      supabase.from("voice_memos").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
-    ]);
-    if ((dupCallRes.data?.length ?? 0) > 0 || (dupMemoRes.data?.length ?? 0) > 0) {
-      await supabase.from("processed_drive_files").upsert(
-        { drive_file_id: file.id, file_name: file.name, memo_id: null },
-        { onConflict: "drive_file_id" }
-      );
-      fr.skipped = true; fr.reason = "duplicate-prevented";
-      console.log("[dwm] duplicate-prevented", JSON.stringify({ file: file.name, recording_key: recKey, in_call_log: (dupCallRes.data?.length ?? 0) > 0 }));
-      return fr;
+
+    // ── Idempotency guard for CALLS: one recording must NEVER be transcribed
+    // twice. A Cube ACR call filename embeds date-time-phone, so the tail
+    // `${recordedBy}_${sanitizedFilename}` is a reliable recording identity — if
+    // a call_log OR voice_memos row already carries it, this is a re-upload, so
+    // skip before spending download/Deepgram. Memos are NOT keyed this way: the
+    // phone reuses generic names ("My recording 2.mp3"), so their filename is not
+    // unique — memo dedup stays drive_file_id + the processed_drive_files ledger
+    // (handled in the main scan loop), plus the DB unique index on drive_file_id.
+    if (isCallRecording) {
+      const recKey = `${rb}_${sanitizeStoragePath(file.name)}`;
+      const [dupCallRes, dupMemoRes] = await Promise.all([
+        supabase.from("call_log").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
+        supabase.from("voice_memos").select("id").like("audio_storage_path", `%${recKey}`).limit(1),
+      ]);
+      if ((dupCallRes.data?.length ?? 0) > 0 || (dupMemoRes.data?.length ?? 0) > 0) {
+        await supabase.from("processed_drive_files").upsert(
+          { drive_file_id: file.id, file_name: file.name, memo_id: null },
+          { onConflict: "drive_file_id" }
+        );
+        fr.skipped = true; fr.reason = "duplicate-prevented";
+        console.log("[dwm] duplicate-prevented", JSON.stringify({ file: file.name, recording_key: recKey, in_call_log: (dupCallRes.data?.length ?? 0) > 0 }));
+        return fr;
+      }
     }
 
     const dl = await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, { headers: { Authorization: `Bearer ${accessToken}` } });

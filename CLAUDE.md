@@ -16,9 +16,10 @@ history lives in `project-memory.md` / `CATL-PROJECT-MEMORY.md`.
 - **`call_log` is canonical for calls; `voice_memos` is for memos only.** One
   recording must NEVER produce two transcripts.
 - `drive-watch-memos` must never write a duplicate `voice_memos` row for a call —
-  calls route to `call_log` only. The **recording-key idempotency guard stays**
-  (code check against call_log/voice_memos + the DB unique index on
-  `voice_memos.recording_key`). Do not remove either layer.
+  calls route to `call_log` only. The **idempotency guard stays** — a calls-only
+  recording-key code check (memo filenames repeat, so they're keyed by
+  `drive_file_id` instead) plus the DB unique index on
+  `voice_memos(drive_file_id)`. Do not remove either layer.
 - Storage reality: both calls and memos live in the `voice-memos` bucket (calls
   under the `calls/` prefix). The `call-recordings` bucket is unused. The intended
   long-term call owner is `process-call-recording`, but it is currently dormant —

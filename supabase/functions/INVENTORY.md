@@ -77,13 +77,15 @@ Note: a large cluster of functions shows `updated 2026-07-06` — a bulk redeplo
 - **Skip / guard rules now in the function:**
   1. Calls route to `call_log` ONLY — the duplicate `voice_memos` insert is
      removed.
-  2. Recording-key idempotency check before any work: derive the stable key
-     (`${recordedBy}_${sanitizedFilename}`, i.e. the stored path minus the upload
-     timestamp — the same key the Hub screen-side dedupe uses) and skip if a
-     `call_log` OR `voice_memos` row already carries it. Logs `duplicate-prevented`.
-  3. Backed by a DB unique index on `voice_memos(recording_key)` (migration
-     `20260717000000_voice_memos_recording_key_guard.sql`) so no future code
-     change can reintroduce the dup.
+  2. Recording-key idempotency check for CALLS before any work: a Cube ACR
+     filename embeds date-time-phone, so the tail `${recordedBy}_${filename}` is
+     a reliable identity — skip if a `call_log` OR `voice_memos` row already
+     carries it (logs `duplicate-prevented`). Memos are NOT keyed this way: the
+     phone reuses generic names ("My recording 2.mp3"), so their dedup stays
+     `drive_file_id` + the `processed_drive_files` ledger.
+  3. Backed by a DB unique index on `voice_memos(drive_file_id)` (migration
+     `20260717000000_voice_memos_drive_file_id_guard.sql`) so a re-processed
+     Drive file can never create a second memo row.
 - **Census flag — bucket naming:** calls do NOT live in the `call-recordings`
   bucket (it is **empty / unused**). Both calls and memos land in the
   `voice-memos` bucket; calls under the `calls/` prefix. `process-call-recording`
