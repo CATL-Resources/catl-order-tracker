@@ -12,6 +12,11 @@
 // voice_memos_drive_file_id_guard). Note: the recording-key check is calls-only
 // because memo filenames repeat ("My recording 2.mp3") and aren't a safe key.
 // v14 diagnostics (verbose logging + per-run batch) are retained.
+// v16 — paginate driveSearch (follow nextPageToken) so ALL Cube ACR date folders
+//       are scanned, not just the newest page — recovers the oldest part of the
+//       2026-05-06 outage backlog. Also chunk the dedup .in() lookup (200 ids per
+//       query) so the now-larger scan can't exceed PostgREST limits and silently
+//       under-report already-done files.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Content-Type": "application/json" };
@@ -65,9 +70,21 @@ async function refreshGoogleToken(supabase: any, tokenRow: any): Promise<string>
 }
 
 async function driveSearch(token: string, query: string): Promise<any[]> {
-  const r = await fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,size,createdTime,parents)&orderBy=createdTime desc&pageSize=50`, { headers: { Authorization: `Bearer ${token}` } });
-  if (!r.ok) { console.error("[dwm] driveSearch failed", r.status, query.slice(0, 80)); return []; }
-  return (await r.json()).files || [];
+  // Paginate through ALL results (follow nextPageToken). Without this we only saw
+  // the newest page per folder/query, capping how many Cube ACR date subfolders
+  // (one per day) got scanned. Capped at 30 pages (~3000 items) as a backstop.
+  const out: any[] = [];
+  let pageToken = "";
+  for (let page = 0; page < 30; page++) {
+    const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=nextPageToken,files(id,name,mimeType,size,createdTime,parents)&orderBy=createdTime desc&pageSize=100${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ""}`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) { console.error("[dwm] driveSearch failed", r.status, query.slice(0, 80)); break; }
+    const j = await r.json();
+    for (const f of (j.files || [])) out.push(f);
+    if (!j.nextPageToken) break;
+    pageToken = j.nextPageToken;
+  }
+  return out;
 }
 async function driveGetSubfolders(token: string, parentId: string): Promise<any[]> {
   return driveSearch(token, `'${parentId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`);
@@ -416,17 +433,22 @@ Deno.serve(async (req) => {
     console.log("[dwm] scan complete", JSON.stringify({ folders_scanned: foldersToScan.length, total_files: allFiles.length, ext_counts: allFiles.reduce((a: any, f: any) => { const e = (f.file.name.split(".").pop() || "?").toLowerCase(); a[e] = (a[e] || 0) + 1; return a; }, {}) }));
     if (!allFiles.length) return new Response(JSON.stringify({ success: true, message: "No audio files", folders_scanned: foldersToScan.map(f => f.name), processed: 0 }), { status: 200, headers: cors });
 
+    // Dedup against already-processed files. Chunk the id list (the paginated
+    // scan can surface thousands of ids; a single .in() would exceed PostgREST's
+    // URL/row limits and silently under-report done ids, causing re-processing).
     const allIds = allFiles.map(f => f.file.id);
-    const { data: ledgerRows, error: ledgerErr } = await supabase.from("processed_drive_files").select("drive_file_id").in("drive_file_id", allIds);
-    const { data: existById, error: existErr } = await supabase.from("voice_memos").select("drive_file_id").in("drive_file_id", allIds);
-    if (ledgerErr) console.error("[dwm] ledger dedup query error", ledgerErr.message);
-    if (existErr) console.error("[dwm] voice_memos dedup query error", existErr.message);
-    const doneIds = new Set([
-      ...(ledgerRows || []).map((e: any) => e.drive_file_id),
-      ...(existById || []).map((e: any) => e.drive_file_id),
-    ]);
+    const doneIds = new Set<string>();
+    for (let i = 0; i < allIds.length; i += 200) {
+      const chunk = allIds.slice(i, i + 200);
+      const { data: ledgerRows, error: ledgerErr } = await supabase.from("processed_drive_files").select("drive_file_id").in("drive_file_id", chunk);
+      const { data: existById, error: existErr } = await supabase.from("voice_memos").select("drive_file_id").in("drive_file_id", chunk);
+      if (ledgerErr) console.error("[dwm] ledger dedup query error", ledgerErr.message);
+      if (existErr) console.error("[dwm] voice_memos dedup query error", existErr.message);
+      for (const e of (ledgerRows || [])) doneIds.add(e.drive_file_id);
+      for (const e of (existById || [])) { if (e.drive_file_id) doneIds.add(e.drive_file_id); }
+    }
     const newFiles = allFiles.filter(f => !doneIds.has(f.file.id));
-    console.log("[dwm] dedup", JSON.stringify({ ledger_rows: ledgerRows?.length ?? null, exist_rows: existById?.length ?? null, done_ids: doneIds.size, new_found: newFiles.length, sample_new: newFiles.slice(0, 8).map((f: any) => f.file.name) }));
+    console.log("[dwm] dedup", JSON.stringify({ done_ids: doneIds.size, new_found: newFiles.length, sample_new: newFiles.slice(0, 8).map((f: any) => f.file.name) }));
 
     if (!newFiles.length) return new Response(JSON.stringify({ success: true, message: "All processed", folders_scanned: foldersToScan.map(f => f.name), total_files: allFiles.length, processed: 0 }), { status: 200, headers: cors });
 
