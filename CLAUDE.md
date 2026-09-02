@@ -4,6 +4,31 @@ Operating rulebook for the edge-function fleet behind the CRLE Supabase project
 (`dubzwbfqlwhkpmpuejsy`). Keep it LEAN: rules and structural facts only. Deeper
 history lives in `project-memory.md` / `CATL-PROJECT-MEMORY.md`.
 
+## Engineering standards (every session, every PR)
+
+Full rules, and the definition of done: @docs/ENGINEERING-STANDARDS.md
+
+Commands for this repo. All of these run automatically in GitHub Actions on every
+PR and every push to the default branch (`.github/workflows/ci.yml`); a red check blocks the merge.
+
+| Gate | Command | Note |
+|---|---|---|
+| Typecheck | `npm run typecheck` | `tsc -p tsconfig.app.json --noEmit` (never bare `tsc --noEmit`: the root tsconfig is references-only and checks zero files) |
+| Lint | `npm run lint` | Ratchet: CI fails only if the error count rises above `.lint-baseline`. Lower that number whenever you clean some up |
+| Tests | `npm test` | vitest, jsdom. Only the scaffold placeholder test exists; the 54 edge functions have no tests |
+| Build | `npm run build` | `vite build` |
+
+Non-negotiables:
+
+- Fresh container: `npm ci` before anything else.
+- Never merge a PR with a red check. Never push straight to the default branch.
+- The PR body uses the four headings in `.github/pull_request_template.md`. CI fails the PR without them.
+- A new check is proven by planting a bug and watching it go red before it is trusted.
+- Every Supabase call checks `error` before touching `data`. A `catch` that swallows has a comment saying why.
+- Merging to main with a change under `supabase/functions/` deploys that function to PRODUCTION immediately (`.github/workflows/deploy-edge-functions.yml`). The PR gates are the only thing between a typo and the live robots.
+- This repo is PUBLIC on GitHub and `.env` is committed (anon key only). Never commit a service-role key, a QuickBooks secret, or a customer's data.
+- Error monitoring: the Sentry loader lives inline in `src/main.tsx` (inert until `VITE_SENTRY_DSN` is set in Vercel). Do not remove it. Edge functions still only `console.error`; a heartbeat/alert for the fleet is a queued item.
+
 ## Structural facts
 - Edge functions are Deno on Supabase, source under `supabase/functions/<slug>/`.
 - **Lovable overwrites edge functions on every deploy** — it redeploys cached
