@@ -13,8 +13,8 @@ PR and every push to the default branch (`.github/workflows/ci.yml`); a red chec
 
 | Gate | Command | Note |
 |---|---|---|
-| Typecheck | `npm run typecheck` | `tsc -p tsconfig.app.json --noEmit` (never bare `tsc --noEmit`: the root tsconfig is references-only and checks zero files) |
-| Lint | `npm run lint` | Ratchet: CI fails only if the error count rises above `.lint-baseline`. Lower that number whenever you clean some up |
+| Typecheck | `npm run typecheck` | `tsc -p tsconfig.app.json --noEmit` (never bare `tsc --noEmit`: the root tsconfig is references-only and checks zero files). Turning it on (2026-09-02) found 4 real type errors: `OverviewTab.tsx` passes `customer_id` where the type forbids it, and `Memos.tsx` reads `.notes` three times on a `Memo` type that has no `notes` field. Ratchet: CI fails only if the count rises above `.typecheck-baseline` (4). Fix them first when touching those screens. Google Maps types are referenced from `src/types/google-maps.d.ts`; do not delete it |
+| Lint | `npm run lint` | Ratchet: CI fails only if the error count rises above `.lint-baseline` (668 pre-existing, almost all `no-explicit-any`). Lower that number whenever you clean some up |
 | Tests | `npm test` | vitest, jsdom. Only the scaffold placeholder test exists; the 54 edge functions have no tests |
 | Build | `npm run build` | `vite build` |
 
