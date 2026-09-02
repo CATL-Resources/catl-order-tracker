@@ -27,7 +27,8 @@ jobs:
       - name: Install (exact versions from package-lock.json)
         run: npm ci
 
-      - name: Typecheck (ratchet: type errors may never go UP; .typecheck-baseline is the pre-existing backlog)
+      # Ratchet: type errors may never go UP. .typecheck-baseline is the pre-existing backlog.
+      - name: Typecheck (no new type errors)
         run: |
           baseline=$(tr -d '[:space:]' < .typecheck-baseline)
           npm run typecheck > typecheck.log 2>&1 || true
