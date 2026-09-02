@@ -26,14 +26,18 @@ Non-negotiables:
 - A new check is proven by planting a bug and watching it go red before it is trusted.
 - Every Supabase call checks `error` before touching `data`. A `catch` that swallows has a comment saying why.
 - Merging to main with a change under `supabase/functions/` deploys that function to PRODUCTION immediately (`.github/workflows/deploy-edge-functions.yml`). The PR gates are the only thing between a typo and the live robots.
-- This repo is PUBLIC on GitHub and `.env` is committed (anon key only). Never commit a service-role key, a QuickBooks secret, or a customer's data.
+- This repo is being made PRIVATE (Chandy's call 2026-09-02; until the switch is flipped in Settings it is still public). `.env` is committed (anon key only). Never commit a service-role key, a QuickBooks secret, or a customer's data.
 - Error monitoring: the Sentry loader lives inline in `src/main.tsx` (inert until `VITE_SENTRY_DSN` is set in Vercel). Do not remove it. Edge functions still only `console.error`; a heartbeat/alert for the fleet is a queued item.
 
 ## Structural facts
 - Edge functions are Deno on Supabase, source under `supabase/functions/<slug>/`.
-- **Lovable overwrites edge functions on every deploy** — it redeploys cached
-  versions of ALL functions when any frontend change ships. Always commit the
-  correct source to `supabase/functions/*/index.ts`; never leave a fix live-only.
+- **Lovable is retired (Chandy, 2026-09-02).** Nothing is edited or hosted there
+  anymore. The old warning still matters until the Lovable GitHub app is
+  uninstalled from this repo: while it is installed it can push and redeploy
+  cached versions of ALL functions. Queued item: uninstall it, delete `.lovable/`
+  and `lovable-tagger`, and confirm the frontend's real home (there is no Vercel
+  project for this repo). Always commit the correct source to
+  `supabase/functions/*/index.ts`; never leave a fix live-only.
 - Schema changes go through migration files in `supabase/migrations/`, additive
   only; every data write follows rollback → guarded write → read-back.
 
