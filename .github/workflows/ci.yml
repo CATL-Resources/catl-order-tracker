@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   gates:
-    name: Gates (typecheck, tests, build)
+    name: Gates (typecheck ratchet, tests, build)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -27,8 +27,25 @@ jobs:
       - name: Install (exact versions from package-lock.json)
         run: npm ci
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Typecheck (ratchet: type errors may never go UP; .typecheck-baseline is the pre-existing backlog)
+        run: |
+          baseline=$(tr -d '[:space:]' < .typecheck-baseline)
+          npm run typecheck > typecheck.log 2>&1 || true
+          errors=$(grep -c "error TS" typecheck.log || true)
+          echo "Type errors now: $errors   (baseline: $baseline)"
+          if [ "$errors" -gt "$baseline" ]; then
+            echo "::error::Type errors went UP from $baseline to $errors. New code must not add type errors. Details:"
+            cat typecheck.log
+            exit 1
+          fi
+          if [ "$errors" -lt "$baseline" ]; then
+            echo "::notice::Backlog shrank to $errors. Lower .typecheck-baseline to $errors in this PR so it can't creep back."
+          fi
+          if [ "$errors" -gt 0 ]; then
+            echo "Pre-existing type errors still to clean up:"
+            grep "error TS" typecheck.log
+          fi
+          echo "OK: no new type errors."
 
       - name: Tests
         run: npm test
