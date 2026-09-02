@@ -1,0 +1,111 @@
+# CI gates. Runs on every pull request and every push to main. Nobody has to remember to run these.
+# A red check means "do not merge" — fix the cause, never the check. See docs/ENGINEERING-STANDARDS.md.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gates:
+    name: Gates (typecheck ratchet, tests, build)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (exact versions from package-lock.json)
+        run: npm ci
+
+      # Ratchet: type errors may never go UP. .typecheck-baseline is the pre-existing backlog.
+      - name: Typecheck (no new type errors)
+        run: |
+          baseline=$(tr -d '[:space:]' < .typecheck-baseline)
+          npm run typecheck > typecheck.log 2>&1 || true
+          errors=$(grep -c "error TS" typecheck.log || true)
+          echo "Type errors now: $errors   (baseline: $baseline)"
+          if [ "$errors" -gt "$baseline" ]; then
+            echo "::error::Type errors went UP from $baseline to $errors. New code must not add type errors. Details:"
+            cat typecheck.log
+            exit 1
+          fi
+          if [ "$errors" -lt "$baseline" ]; then
+            echo "::notice::Backlog shrank to $errors. Lower .typecheck-baseline to $errors in this PR so it can't creep back."
+          fi
+          if [ "$errors" -gt 0 ]; then
+            echo "Pre-existing type errors still to clean up:"
+            grep "error TS" typecheck.log
+          fi
+          echo "OK: no new type errors."
+
+      - name: Tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  lint:
+    # Ratchet: lint errors may never go UP. The number in .lint-baseline is the
+    # pre-existing backlog; new code cannot add to it. Lower the number as the
+    # backlog is cleaned up. Zero is the destination.
+    name: Lint (no new errors)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install (exact versions from package-lock.json)
+        run: npm ci
+
+      - name: Lint and compare against the baseline
+        run: |
+          baseline=$(tr -d '[:space:]' < .lint-baseline)
+          npx eslint . -f json -o lint-report.json || true
+          errors=$(node -e "const r=require('./lint-report.json');console.log(r.reduce((a,f)=>a+f.errorCount,0))")
+          echo "Lint errors now: $errors   (baseline: $baseline)"
+          if [ "$errors" -gt "$baseline" ]; then
+            echo "::error::Lint errors went UP from $baseline to $errors. New code must not add lint errors. Details:"
+            npx eslint . || true
+            exit 1
+          fi
+          if [ "$errors" -lt "$baseline" ]; then
+            echo "::notice::Backlog shrank to $errors. Lower .lint-baseline to $errors in this PR so it can't creep back."
+          fi
+          echo "OK: no new lint errors."
+
+  pr-summary:
+    name: PR summary has the four sections
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Check the PR body for the four required headings
+        env:
+          BODY: ${{ github.event.pull_request.body }}
+        run: |
+          missing=""
+          for h in "What changed" "What could break" "How it was proven" "Not tested"; do
+            if ! printf '%s' "$BODY" | grep -qi "$h"; then
+              missing="$missing\n  - $h"
+            fi
+          done
+          if [ -n "$missing" ]; then
+            printf 'PR body is missing required sections:%b\n\nCopy the headings from .github/pull_request_template.md and fill them in.\n' "$missing"
+            exit 1
+          fi
+          echo "All four sections present."
