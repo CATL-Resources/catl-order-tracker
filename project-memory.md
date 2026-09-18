@@ -1,7 +1,7 @@
 # Project Memory
 
-> Last updated: 2026-03-29 (evening)
-> Total entries: 33
+> Last updated: 2026-09-01
+> Total entries: 37
 
 ---
 
@@ -832,3 +832,52 @@ Since Moly invoices are lumped (single total) and our POs are itemized:
 - The Estimate status in QB changes to "Closed" automatically when fully invoiced
 - The PO status in QB changes to "Closed" when a Bill is linked that covers the full amount
 
+---
+
+## [2026-09-01] — submit-lead Edge Function + web_leads Table (LIVE, merged PR #4)
+
+**Category:** Milestone
+**Project:** CATL Resources
+
+One shared public Supabase edge function `submit-lead` (CRLE `dubzwbfqlwhkpmpuejsy`, `verify_jwt=false`) now backs BOTH the website contact form and the chute configurator/estimator. Deployed to CRLE and merged to `main` via PR #4 (merge commit `78136aa`).
+
+- Saves every submission to a new `public.web_leads` table (status `new`, RLS enabled, authenticated users read, function writes via service role, `created_at desc` index).
+- Then emails Tim via Resend from `tim@catlresources.com` with `reply_to` = the customer, so Reply goes straight to them.
+- Always returns HTTP 200 with a `success` flag (matches the repo convention so the site shows a real message). The lead is saved BEFORE the email, so a Resend failure never loses it — the `emailed` flag just stays false.
+- `source` field distinguishes the front ends. Shipped with `contact_form` (default) + `configurator`; the originally-specced `parts_order` source is NOT yet distinctly wired.
+- Endpoint: `https://dubzwbfqlwhkpmpuejsy.supabase.co/functions/v1/submit-lead`
+
+---
+
+## [2026-09-01] — Silencer 2026 Price-List Catalog Sync (merged PR #4)
+
+**Category:** Milestone
+**Project:** CATL Resources
+
+Reconciled the QuickBooks-reconciled Silencer Combined Price List 2026 against the live `model_options` catalog so the configurator matches the official list per model. Applied to CRLE and merged to `main` via PR #4. Catalog-only — no QuickBooks writes, `base_models` unchanged (the referenced QB items already exist in QB; only `qb_item_id` pointers + option rows changed).
+
+- **3 stale QB-link fixes:** De-Horner (qb 312→1324); Heavy Yoke Extended ($4,100/qb739 → $6,427/qb1545); 12HP Gas Closed Center ($3,748/qb912 → $5,422/qb1546).
+- **9 new per-model options:** squeeze variants (Ranch-Wide qb801, Std-Width Xtra qb1454, MAXX qb665); Gas 5.5HP qb111; bundled scales (TruTest-Platform-w/S3 qb1547, Weigh-Tronix-Platform-w/640 qb1548); Tilt Stand-Alone Rear Gate qb1516, Leg Restraint qb1520, Calf Puller qb1549.
+- **Full 26-row per-model `model_restriction` lockdown** so each model shows exactly the list's option set.
+- New versioned artifact `src/data/price-list-2026.json` (9 models, all options, QB ids). New options' `cost_price` set at the prevailing 20% margin (cost = retail × 0.8), flagged `verify` in `notes`.
+- **Verified:** 83 options total; squeeze resolves to exactly 1 per model; carrier/power/scale counts per model match the list + preserved extras.
+
+---
+
+## [2026-09-01] — Configurator Reads model_restriction, NOT the Junction Table
+
+**Category:** Lesson
+**Project:** CATL Resources
+
+Per-model option availability (which options appear on which Silencer model) is enforced through the `model_options.model_restriction` column — that is the field the equipment configurator actually reads. The `model_option_availability` junction table is effectively dead code: the configurator does not read it. Deliver any per-model show/hide via `model_restriction`. This is why the 2026 price-list per-model lockdown was implemented as 26 `model_restriction` updates rather than junction rows.
+
+---
+
+## [2026-09-01] — Open: Per-Model $0 Pricing Not Represented
+
+**Category:** Blocker
+**Project:** CATL Resources
+
+The 2026 price list makes some options free on specific models (e.g. Additional Neck Access = $0 on Commercial Pro). This is NOT represented in the sync: the configurator reads `model_restriction` (show/hide) plus a single option price — it has no per-model price override. Representing per-model `$0` (or per-model prices generally) requires a CODE change: a per-model price map or a model-option price-override table wired into the configurator/estimator. Deferred and noted, not faked — the "$0-per-model configurator enhancement" left on the shelf.
+
+Also open: wire the `parts_order` source into `submit-lead` when the parts website flow is built.

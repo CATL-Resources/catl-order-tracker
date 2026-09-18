@@ -1,15 +1,40 @@
 # CATL Resources Livestock Equipment Manager — Project Memory
-> Last updated: 2026-04-04 (massive session — freight, doc chain, status, driver share, batch ops)
+> Last updated: 2026-09-01 (submit-lead + web_leads live; Silencer 2026 price-list catalog sync — both merged via PR #4)
 
 ## Project Basics
 - **App**: Tracks livestock equipment from quote → order → build → delivery → freight
 - **Stack**: React (Lovable) → GitHub `chandyolson/catl-order-tracker` → Supabase "CRLE" (`dubzwbfqlwhkpmpuejsy`)
 - **Design System**: ChuteSide — cream #F5F5F0, navy #0E2646, teal #55BAAA, gold #F3D12A
 - **Skill file**: `/mnt/skills/user/catl-equipment-ops/SKILL.md` — READ THIS FIRST every session
-- **Last commit**: `122f446` on `main` branch
+- **Last commit**: PR #4 merged into `main` — submit-lead + web_leads + Silencer 2026 price sync (merge `78136aa`)
 
 ## Nav (6 items)
 Dashboard, Equipment, Leads, Freight, Customers, Settings
+
+## Session Summary — 2026-09-01
+
+### Website Leads — submit-lead Edge Function + web_leads Table (LIVE, merged PR #4)
+- New public edge function `submit-lead` (CRLE `dubzwbfqlwhkpmpuejsy`, `verify_jwt=false`) backs BOTH the website contact form and the chute configurator/estimator.
+- Every submission: (1) saves a row to new `public.web_leads` (status `new`, RLS on, service-role writes, `created_at desc` index), then (2) emails Tim via Resend from `tim@catlresources.com` with `reply_to` = customer.
+- Always returns HTTP 200 with a `success` flag (repo convention). Lead is saved BEFORE the email, so a Resend failure never loses it (`emailed` stays false).
+- `source` field distinguishes the front ends — ships with `contact_form` (default) + `configurator`. Originally-specced `parts_order` source NOT yet distinctly wired.
+- Endpoint: `https://dubzwbfqlwhkpmpuejsy.supabase.co/functions/v1/submit-lead`
+
+### Silencer 2026 Price-List Catalog Sync (applied to CRLE, merged PR #4)
+- Reconciled the QB-reconciled Silencer Combined Price List 2026 against live `model_options`. Catalog-only — no QuickBooks writes, `base_models` unchanged.
+- 3 stale QB-link fixes: De-Horner (qb 312→1324); Heavy Yoke Extended ($4,100/qb739 → $6,427/qb1545); 12HP Gas Closed Center ($3,748/qb912 → $5,422/qb1546).
+- 9 new per-model options: squeeze variants (Ranch-Wide qb801, Std-Width Xtra qb1454, MAXX qb665); Gas 5.5HP qb111; bundled scales (TruTest-Platform-w/S3 qb1547, Weigh-Tronix-Platform-w/640 qb1548); Tilt Stand-Alone Rear Gate qb1516, Leg Restraint qb1520, Calf Puller qb1549.
+- Full 26-row per-model `model_restriction` lockdown so each model shows exactly the list's option set.
+- New artifact `src/data/price-list-2026.json` (9 models, all options, QB ids). New options' `cost_price` at 20% margin (cost = retail × 0.8), flagged `verify` in notes.
+- Verified: 83 options total; squeeze resolves to exactly 1 per model; carrier/power/scale counts per model match the list + preserved extras.
+
+### KEY LESSON — configurator availability lives in `model_restriction`
+- Per-model option availability is enforced via the `model_options.model_restriction` column — the field the configurator actually reads. The `model_option_availability` junction table is dead code (not read). Deliver per-model show/hide via `model_restriction`.
+
+### Live-App Impact & Open Items
+- ⚠️ The `model_restriction` lockdown changes the LIVE configurator — options not on a model's list are now hidden on that model (explicit "full per-model lockdown" choice). Non-list options (CATL mods, Extended-Chute machinery, controls helpers, scale components) left available on all models.
+- OPEN: per-model `$0` pricing (e.g. free Additional Neck Access on C PRO) not represented — configurator reads `model_restriction` + a single price, no per-model override. Needs a code change (per-model price map / override table). Deferred, not faked.
+- OPEN: wire the `parts_order` source into `submit-lead` when the parts website flow is built.
 
 ## Session Summary — 2026-04-04
 
