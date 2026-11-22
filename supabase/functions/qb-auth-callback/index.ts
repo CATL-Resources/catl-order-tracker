@@ -20,14 +20,6 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
   const redirectUri = `${supabaseUrl}/functions/v1/qb-auth-callback`;
 
-  // Debug logging (safe - only partial values)
-  console.log('DEBUG: clientId length:', clientId?.length, 'first 6:', clientId?.substring(0, 6));
-  console.log('DEBUG: clientSecret length:', clientSecret?.length, 'first 4:', clientSecret?.substring(0, 4));
-  console.log('DEBUG: redirectUri:', redirectUri);
-  console.log('DEBUG: SUPABASE_URL:', supabaseUrl);
-  console.log('DEBUG: code length:', code?.length);
-  console.log('DEBUG: realmId:', realmId);
-
   // Exchange authorization code for tokens
   const basicAuth = btoa(`${clientId}:${clientSecret}`);
 
@@ -36,8 +28,6 @@ Deno.serve(async (req: Request) => {
     code: code,
     redirect_uri: redirectUri
   });
-
-  console.log('DEBUG: token request body:', body.toString());
 
   const tokenResponse = await fetch('https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer', {
     method: 'POST',
@@ -50,8 +40,8 @@ Deno.serve(async (req: Request) => {
   });
 
   const respText = await tokenResponse.text();
-  console.log('DEBUG: token response status:', tokenResponse.status);
-  console.log('DEBUG: token response body:', respText);
+  // Never log the response body: it holds the QuickBooks access and refresh tokens.
+  console.log('qb-auth-callback: token exchange status', tokenResponse.status);
 
   if (!tokenResponse.ok) {
     return new Response(`Token exchange failed (${tokenResponse.status}): ${respText}`, { status: 500 });
@@ -70,7 +60,11 @@ Deno.serve(async (req: Request) => {
   const refreshExpires = new Date(now.getTime() + tokens.x_refresh_token_expires_in * 1000);
 
   // Delete old tokens and insert new
-  await supabase.from('qb_tokens').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  const { error: deleteError } = await supabase.from('qb_tokens').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+  if (deleteError) {
+    console.error('Failed to clear old tokens:', deleteError);
+    return new Response(`Failed to clear old tokens: ${deleteError.message}`, { status: 500 });
+  }
 
   const { error: insertError } = await supabase.from('qb_tokens').insert({
     realm_id: realmId,
@@ -89,7 +83,7 @@ Deno.serve(async (req: Request) => {
   return new Response(null, {
     status: 302,
     headers: {
-      'Location': 'https://crle.lovable.app?qb_connected=true'
+      'Location': 'https://catlapp.com/?qb_connected=true'
     }
   });
 });
