@@ -11,6 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Two commits, so the step below can compare this push with the one before it.
+          fetch-depth: 2
 
       - uses: supabase/setup-cli@v1
         with:
@@ -23,14 +26,18 @@ jobs:
           PROJECT_REF: dubzwbfqlwhkpmpuejsy
         run: |
           # Get list of changed files in this push
-          CHANGED=$(git diff --name-only HEAD~1 HEAD -- supabase/functions/ 2>/dev/null || echo "supabase/functions/")
+          # If the comparison fails, STOP. The old fallback deployed all 54 functions.
+          if ! CHANGED=$(git diff --name-only HEAD~1 HEAD -- supabase/functions/); then
+            echo "::error::Could not work out which functions changed. Nothing was deployed."
+            exit 1
+          fi
           
           # Extract unique function names from changed paths
           FUNCTIONS=$(echo "$CHANGED" | grep -oP 'supabase/functions/\K[^/]+' | sort -u)
           
           if [ -z "$FUNCTIONS" ]; then
-            echo "No function changes detected, deploying all..."
-            FUNCTIONS=$(ls supabase/functions/)
+            echo "No function folders changed. Nothing to deploy."
+            exit 0
           fi
           
           echo "Functions to deploy: $FUNCTIONS"
@@ -44,12 +51,14 @@ jobs:
               if [ -f "supabase/functions/$fn/verify_jwt" ]; then
                 echo "Deploying $fn (JWT verification ENABLED)..."
                 supabase functions deploy "$fn" \
-                  --project-ref "$PROJECT_REF"
+                  --project-ref "$PROJECT_REF" \
+                  --yes
               else
                 echo "Deploying $fn (JWT verification disabled)..."
                 supabase functions deploy "$fn" \
                   --project-ref "$PROJECT_REF" \
-                  --no-verify-jwt
+                  --no-verify-jwt \
+                  --yes
               fi
             else
               echo "Skipping $fn (no index.ts found)"
