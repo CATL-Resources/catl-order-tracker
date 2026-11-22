@@ -1,17 +1,9 @@
-# Edge Functions — DO NOT DEPLOY FROM LOVABLE
+# Edge Functions
 
-Edge functions in this directory are deployed via GitHub Actions, NOT by Lovable.
+Edge functions (background jobs) in this directory deploy to PRODUCTION through GitHub Actions when a change under `supabase/functions/` merges to `main` (`.github/workflows/deploy-edge-functions.yml`).
 
-**Why:** Lovable overwrites edge functions with stale cached versions on every frontend deploy. This has broken QB integration, email sending, and document processing repeatedly.
+1. Edit the function in `supabase/functions/<name>/index.ts` on a branch.
+2. Open a pull request. Merge only when every check is green.
+3. Never leave a fix live-only. The source in this folder is the source of truth.
 
-**How it works:**
-1. Edge function source lives in `supabase/functions/{function-name}/index.ts`
-2. When changes are pushed to `main` in `supabase/functions/`, GitHub Actions deploys them to Supabase
-3. Lovable handles ONLY frontend code (src/, public/, etc.)
-
-**To update an edge function:**
-- Edit the `index.ts` file in the correct function directory
-- Push to main
-- GitHub Actions deploys automatically
-
-**DO NOT** paste edge function code into Lovable prompts. It will cache and redeploy broken versions.
+A function that must require a signed-in caller has an empty `verify_jwt` file in its folder. Every other function deploys without that check.
