@@ -1,6 +1,6 @@
 # CATL Equipment Manager Build-Out Plan
 
-> Written 2026-11-21 in a planning session with Chandy. The commentable copy is the doc at https://claude.ai/artifact/8v59ckayCaW5mV7Z6eNQTZ. If the two disagree, the doc wins and this file gets updated.
+> Written 2026-11-21 in a planning session with Chandy. The commentable copy is the doc at https://claude.ai/artifact/8v59ckayCaW5mV7Z6eNQTZ. The build prompts in this file are the copy Claude runs and carry build notes added after approval. For everything else, the doc is where Chandy comments.
 > Status: plan and build order approved by Chandy 2026-11-21 17:28 MT. Phase 0 is next.
 
 ## One-Page Summary
