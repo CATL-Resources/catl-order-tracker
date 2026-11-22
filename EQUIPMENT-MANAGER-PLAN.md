@@ -1,7 +1,35 @@
 # CATL Equipment Manager Build-Out Plan
 
 > Written 2026-11-21 in a planning session with Chandy. The commentable copy is the doc at https://claude.ai/artifact/8v59ckayCaW5mV7Z6eNQTZ. The build prompts in this file are the copy Claude runs and carry build notes added after approval. For everything else, the doc is where Chandy comments.
-> Status: plan and build order approved by Chandy 2026-11-21 17:28 MT. Phase 0 is next.
+> Status: plan and build order approved by Chandy 2026-11-21 17:28 MT. Phase 0 is about half built; see Build Status just below.
+
+## Build Status (2026-11-22)
+
+Phase 0 done (pull requests 14 to 16):
+
+- [x] App's QuickBooks sign-in reconnected (2026-11-21) and renewed daily by `qb-refresh-token-daily`
+- [x] Sign-in returns to catlapp.com and no longer logs tokens
+- [x] Lovable removed (code, GitHub app, project)
+- [x] Deploy job fixed: only changed functions are published
+- [x] Robot alarms: `robot_heartbeats`, `robot_health_run()`, `robot-health-check`, daily 6:10 AM Mountain
+
+Phase 0 left:
+
+- [ ] Speed up `drive-watch-memos` (it re-reads all 222 Cube ACR date folders every 5 minutes, about 55 seconds a run)
+- [ ] One door for website leads
+- [ ] Visitor counting: `site_events`, `site_stats_weekly`, Estimate Builder start and finish
+- [ ] Tests on the QuickBooks estimate path and lead intake
+- [ ] System Health card on the Hub dashboard (reads `robot_heartbeats`)
+
+Findings that change later phases:
+
+- The call robot was never broken. No recording has reached Tim's Google Drive since 2026-11-08; Cube ACR on his phone needs checking. Voice memos likely the same.
+- `catl-hub` CLAUDE.md still says QuickBooks is read-only and carries an old sign-in date. Update it in the first Hub pull request: the app may create estimates only.
+- The website photo picker page was removed on 2026-11-21 after all 141 photos were picked. Phase 5 builds photo management fresh in the Hub; the `website_photo_picks` table is kept.
+- A separate chat is working on the website (`catl-equipment-website`, branch `new-site`). Only one session at a time in that repo.
+- Tim approved 20 Estimate Builder changes on 2026-11-21. They are written as a prompt in the project doc `claude/equipment-manager-handoff-2026-11-22.md` and are not built. Tilt chutes "Call Us" line is still Chandy's call.
+- The QuickBooks sign-in expiry read 2027-03-03 after the first daily renewal. If it never moves later, a fresh sign-in is needed before then; the alarm warns 14 days ahead.
+- A scheduled unattended build session was refused by the app's safety check. Builds run inside a chat that Chandy starts.
 
 ## One-Page Summary
 
@@ -480,7 +508,7 @@ Pause for: sending a share link or bill of lading to a carrier.
 
 The plan and build order are approved. What is still open:
 
-1. **RUN** the QuickBooks sign-in: open https://dubzwbfqlwhkpmpuejsy.supabase.co/functions/v1/qb-auth-start and sign in. About two minutes.
+1. **RUN** the Cube ACR check on Tim's phone: recording on, Google Drive backup signed in as timselect@gmail.com.
 2. **DECIDE** anything you disagree with among the three defaults: screens in CATL Hub at catlapp.com, dark look inside with navy, cream, and gold for customers, and the app creating QuickBooks estimates only.
 3. **DECIDE** the email service for the weekly tips, before Phase 6. Recommendation: Resend, free until 1,000 people.
 4. **DECIDE** whether each weekly tips email waits for your approval. Recommendation: yes for the first month.
