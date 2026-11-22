@@ -14,9 +14,15 @@ create table if not exists public.robot_heartbeats (
 
 alter table public.robot_heartbeats enable row level security;
 
-drop policy if exists robot_heartbeats_read on public.robot_heartbeats;
-create policy robot_heartbeats_read on public.robot_heartbeats
-  for select to authenticated using (true);
+do $pol$
+begin
+  if not exists (select 1 from pg_policies where schemaname = 'public'
+                 and tablename = 'robot_heartbeats' and policyname = 'robot_heartbeats_read') then
+    create policy robot_heartbeats_read on public.robot_heartbeats
+      for select to authenticated using (true);
+  end if;
+end
+$pol$;
 
 create or replace function public.robot_health_run()
 returns setof public.robot_heartbeats
@@ -40,6 +46,11 @@ declare
                              and created_at < now() - interval '15 minutes'
                              and created_at > now() - interval '14 days');
 begin
+  -- Signed-out callers (the public website key) may not run the checks.
+  if coalesce(auth.role(), '') = 'anon' then
+    raise exception 'robot_health_run is not available to signed-out callers';
+  end if;
+
   return query
   with checks(check_key, label, ok, detail, how_to_fix) as (
     values
@@ -89,9 +100,6 @@ begin
   returning h.*;
 end;
 $fn$;
-
-revoke all on function public.robot_health_run() from public, anon;
-grant execute on function public.robot_health_run() to authenticated, service_role;
 
 -- Run the alarm every morning at 6:10 AM Mountain (13:10 UTC).
 select cron.unschedule('robot-health-check-daily')
