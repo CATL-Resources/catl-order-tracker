@@ -1,7 +1,7 @@
 # CATL Equipment Manager Build-Out Plan
 
-> Written 2026-11-21 in a planning session with Chandy. The commentable copy is the doc at https://claude.ai/artifact/8v59ckayCaW5mV7Z6eNQTZ. If the two disagree, the doc wins and this file gets updated.
-> Status: waiting on Chandy's approval. Nothing here is built yet.
+> Written 2026-11-21 in a planning session with Chandy. The commentable copy is the doc at https://claude.ai/artifact/8v59ckayCaW5mV7Z6eNQTZ. The build prompts in this file are the copy Claude runs and carry build notes added after approval. For everything else, the doc is where Chandy comments.
+> Status: plan and build order approved by Chandy 2026-11-21 17:28 MT. Phase 0 is next.
 
 ## One-Page Summary
 
@@ -177,7 +177,7 @@ Each phase is usable on its own.
 - **What gets built:**
     - The named actions, built as database functions so the dashboard, Duet, and regular Claude all call the same ones.
     - The CATL Equipment connector, a thin wrapper that shows those actions to Claude by name.
-    - A CATL equipment skill, the written playbook Claude reads: how sales run, what an estimate needs, how Tim words things.
+    - A CATL equipment skill, the written playbook Claude reads: how sales run, what an estimate needs, how Tim words things. It starts from the playbook that already exists, the Notion page "Skill: Keep the equipment board current" (loaded on Tim's Claude as the `equipment-board` skill).
     - Make Estimate: a build or a spoken description becomes a QuickBooks estimate with the right line items at today's catalog prices.
     - Send Package: pick photos, attach them to the QuickBooks estimate, and QuickBooks sends the PDF, the photos, and the accept button together. Nothing leaves without an approval tap.
     - A read-back every 30 minutes, so each lead shows Sent, Accepted, or Declined by itself.
@@ -190,7 +190,7 @@ Each phase is usable on its own.
 ### Phase 3: The Chute Board
 
 - **What gets built:**
-    - A one-time catch-up from Notion. Chandy sees the list of differences before anything is written.
+    - A one-time catch-up from Notion. Chandy sees the list of differences before anything is written. It covers three things on the CATL Resources Dashboard page: the Equipment database, the Open Items list of follow-ups, and the Running List checklist. The old copy named "Equipment (1)" is ignored.
     - Down payments, both directions.
     - Paid or not, read from QuickBooks.
     - Changes and modifications logged by tap or by message.
@@ -272,8 +272,8 @@ Each phase is usable on its own.
 
 ### Vercel And Analytics
 
-- **The free Hobby plan is for personal, non-commercial sites** (https://vercel.com/docs/limits/fair-use-guidelines). A business website needs the Pro plan, listed at $20 a month. This is a spending decision for Chandy.
-- **Hobby counts 50,000 visitor events a month** and keeps a short history. The weekly copy into our database removes the history limit.
+- **The account is on Vercel Pro** (Chandy, 2026-11-21), so the business website is allowed. The free Hobby plan would not allow it (https://vercel.com/docs/limits/fair-use-guidelines).
+- **Vercel keeps a limited history of visitor numbers.** The weekly copy into our database removes the history limit.
 - **Vercel does not know what a lead is.** Estimate Builder starts, finishes, and form sends are counted by us.
 
 ### Claude Duet
@@ -308,7 +308,7 @@ Each phase is usable on its own.
 | 1 | Where do the screens live? | CATL Hub at catlapp.com | The working screens are already there. This repo has no hosting and keeps the robots. |
 | 2 | What does the inside app look like? | Keep the Hub's dark look inside. Navy, cream, and gold for the website and anything a customer sees. | Restyling six working screens buys nothing for sales. |
 | 3 | May the app create estimates in QuickBooks? | Yes, estimates only | It is what removes the retyping. Everything else stays read-only. |
-| 4 | Move the website to Vercel Pro at $20 a month? | Yes, before the new site launches | The free plan does not allow business sites. |
+| 4 | Move the website to Vercel Pro at $20 a month? | Settled: Chandy already has Vercel Pro (2026-11-21) | No new spend. |
 | 5 | Which email service sends the weekly tips? | Resend | It is already connected and verified, and it is free until the list passes 1,000 people. |
 | 6 | Does each weekly tips email need approval? | Yes for the first month, then automatic | It goes to people outside the business. |
 | 7 | Who gets which automatic email? | Monday summary to Chandy and Tim. Daily follow-ups list to Tim. | Tim works the list. Chandy watches the trend. |
@@ -365,6 +365,7 @@ Build:
 8. Add a System Health card to the Hub dashboard.
 Done when: QuickBooks answers from the app, a robot stopped on purpose produces a red email, yesterday's calls appear, and site_events shows a test Estimate Builder start and finish.
 Pause for: Chandy signing in to QuickBooks.
+Notes from 2026-11-21: the sign-in link already works without a new button (https://dubzwbfqlwhkpmpuejsy.supabase.co/functions/v1/qb-auth-start redirects to Intuit); check qb_tokens.updated_at before asking her again. call_log ran 7 to 28 calls a day through 2026-11-08, had 1 on 2026-11-09, and none since. gmail-scan is still running. cron has only two jobs (drive-watch-memos every 5 min, gmail-scan every 15 min). qb-refresh-token has verify_jwt on, so its cron call needs an auth header.
 ```
 
 ### Phase 1
@@ -391,7 +392,7 @@ Build:
 2. Make Estimate: map build_json to QuickBooks line items with qb_item_id from base_models and model_options, freeze prices at creation, create the estimate through qb-push-estimate, and save qb_estimate_id on the lead. Retire the in-app estimate builder.
 3. Send Package: pick photos from catalog_images and website_photo_picks, shrink to fit 20 MB total, attach to the QuickBooks estimate, and send from QuickBooks only after an approval tap. Fallback: a Gmail draft with the PDF and photos.
 4. A robot every 30 minutes reads estimate status and accepted date back into estimates and web_leads. Freeze the copy on acceptance.
-5. CATL Equipment connector: a small MCP server (a set of actions Claude can call by name) wrapping the em_ functions, with sign-in. Write the CATL equipment skill as its playbook. Test from Chandy's Duet. If Duet cannot use a custom connector, document the fallback through the existing Supabase connector.
+5. Start the playbook from the existing Notion page "Skill: Keep the equipment board current" and keep its never-bend rules. CATL Equipment connector: a small MCP server (a set of actions Claude can call by name) wrapping the em_ functions, with sign-in. Write the CATL equipment skill as its playbook. Test from Chandy's Duet. If Duet cannot use a custom connector, document the fallback through the existing Supabase connector.
 6. Write a ten-minute spoken interview for Tim and store his answers for Phase 3.
 7. Hub: Make Estimate button, photo picker, estimate status chip. Monday summary gains estimates sent and accepted.
 Done when: an Estimate Builder lead becomes a QuickBooks estimate in under a minute with a matching total, the package arrives as one email, and the same steps work by message.
@@ -404,7 +405,7 @@ Pause for: any send to a real customer, and adding the connector to Chandy's Cla
 TITLE: Phase 3 - The Chute Board
 Apply the Standing Rules in EQUIPMENT-MANAGER-PLAN.md.
 Build:
-1. Notion catch-up: read the equipment board through the Notion connector, match rows to orders by notion_id and contract number, and produce a difference list for Chandy. Apply only after she approves, with rollback copy and read-back. Resolve the doubled contract 44277 and the stale units with her.
+1. Notion catch-up: read the Equipment database (collection://dd217e9c-4771-45d4-85aa-d28e2793db3b), the Open Items list (collection://41df9d9a-3038-81b5-93d3-000be2f01d25, Business = Livestock Equipment only), and the Running List page through the Notion connector. Never read the old "Equipment (1)" copy. Equipment Status, Transaction Status, and Equip Location hold several values per row, so map them to one stage plus flags. Match rows to orders by notion_id and contract number, bring open follow-ups into tasks, and produce a difference list for Chandy. Apply only after she approves, with rollback copy and read-back. Resolve the doubled contract 44277 and the stale units with her.
 2. Create unit_payments (direction, amount, date, note). Add qb_invoice_balance to orders and refresh it from QuickBooks on the Phase 2 schedule.
 3. Start using change_orders. Log changes and modifications by tap or through an em_ action.
 4. Keep mfg_contract_number as the one contract identifier and migrate the other two columns into it.
@@ -477,17 +478,13 @@ Pause for: sending a share link or bill of lading to a carrier.
 
 ## 🔴 YOUR TURN
 
-Nothing is built until item 1. Items 3 to 5 already have a default in the plan.
+The plan and build order are approved. What is still open:
 
-1. **APPROVE** this plan and the build order, so Claude starts Phase 0.
-2. **RUN** the QuickBooks sign-in when Phase 0 hands you the Reconnect button. It takes about two minutes.
-3. **DECIDE** where the screens live. Default: CATL Hub at catlapp.com.
-4. **DECIDE** the look of the inside app. Default: the Hub's dark look inside, navy, cream, and gold for anything a customer sees.
-5. **APPROVE** the app creating estimates in QuickBooks. Default: yes, estimates only.
-6. **DECIDE** whether to move the website to Vercel Pro at $20 a month before the new site launches.
-7. **DECIDE** the email service for the weekly tips. Recommendation: Resend, free until 1,000 people.
-8. **DECIDE** whether each weekly tips email waits for your approval. Recommendation: yes for the first month.
-9. **ANSWER** who gets the Monday summary and the daily follow-ups list.
-10. **RUN** the Duet waitlist signup for Tim, from his Claude account.
-11. **APPROVE** the ten-minute spoken interview with Tim in Phase 2, or answer for him: the three or four things he needs to see first on a chute.
-12. **APPROVE** the Notion catch-up list when Phase 3 shows it to you. Notion is frozen that day.
+1. **RUN** the QuickBooks sign-in: open https://dubzwbfqlwhkpmpuejsy.supabase.co/functions/v1/qb-auth-start and sign in. About two minutes.
+2. **DECIDE** anything you disagree with among the three defaults: screens in CATL Hub at catlapp.com, dark look inside with navy, cream, and gold for customers, and the app creating QuickBooks estimates only.
+3. **DECIDE** the email service for the weekly tips, before Phase 6. Recommendation: Resend, free until 1,000 people.
+4. **DECIDE** whether each weekly tips email waits for your approval. Recommendation: yes for the first month.
+5. **ANSWER** who gets the Monday summary and the daily follow-ups list.
+6. **APPROVE** the Notion catch-up list when Phase 3 shows it to you. Notion is frozen that day.
+
+Done: plan approved, Vercel Pro confirmed, Tim on the Duet waitlist, Tim's connections made, Tim emailed about what he needs on a chute.
