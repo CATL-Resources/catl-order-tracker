@@ -1,13 +1,15 @@
-// TITLE: QuickBooks Comparison - Which Orders Are Invoiced, Paid, And Billed By Moly
+// TITLE: QuickBooks Comparison - Which Orders Are Invoiced, Paid, And Billed, Plus Line Items For Unit Specs
 // Runs every hour from pg_cron (job qb-order-compare-hourly).
 // READ-ONLY against QuickBooks: it only runs SELECT queries. It never creates, changes or voids anything there.
-// Pulls estimates, POs, bills, invoices and sales receipts since 2024, finds contract / serial / CATL numbers in them,
-// saves the copy in qb_docs, then qb_compare_run() matches orders and rebuilds qb_mismatches.
+// Pulls estimates, POs, bills, invoices and sales receipts since 2024 with their line items, finds contract / serial / CATL
+// numbers in them, saves the copy in qb_docs + qb_doc_lines, then qb_compare_run() creates Daniels/Rawhide units,
+// matches orders, refreshes unit specs and rebuilds qb_mismatches.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const SINCE = "2024-01-01";
 const TYPES = ["Invoice", "SalesReceipt", "Estimate", "PurchaseOrder", "Bill"];
+const SERIAL_RE = /\bS[A-Z]{1,4}\d{4,6}\b|\bYR[A-Z]{0,3}\d{4,6}\b/g;
 
 async function getQBToken(supabase: any) {
   const { data: tokenRow } = await supabase.from("qb_tokens").select("*").limit(1).single();
@@ -43,6 +45,26 @@ function keysFrom(doc: any, type: string) {
   return { keys_serial: serial, keys_catl: catl, keys_contract: uniq(contract) };
 }
 
+function linesFrom(doc: any) {
+  const out: any[] = [];
+  (doc.Line ?? []).forEach((l: any, i: number) => {
+    const det = l.ItemBasedExpenseLineDetail ?? l.SalesItemLineDetail ?? l.AccountBasedExpenseLineDetail;
+    if (!det) return; // subtotal, discount and group header lines
+    const desc = l.Description ?? null;
+    out.push({
+      line_no: Number(l.LineNum ?? i + 1),
+      item_id: det.ItemRef?.value ?? null,
+      item_name: det.ItemRef?.name ?? det.AccountRef?.name ?? null,
+      description: desc,
+      qty: det.Qty ?? null,
+      unit_price: det.UnitPrice ?? null,
+      amount: l.Amount ?? null,
+      serials: uniq([...((desc ?? "").toUpperCase().matchAll(SERIAL_RE))].map((m) => m[0])),
+    });
+  });
+  return out;
+}
+
 Deno.serve(async (_req: Request) => {
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
   const started = new Date().toISOString();
@@ -71,10 +93,13 @@ Deno.serve(async (_req: Request) => {
         const docs = list.map((d) => ({
           qb_type: type, qb_id: d.Id, doc_number: d.DocNumber ?? null, txn_date: d.TxnDate ?? null,
           party_name: d.CustomerRef?.name ?? d.VendorRef?.name ?? null,
-          total: d.TotalAmt ?? null, balance: d.Balance ?? null, ...keysFrom(d, type),
+          party_id: d.CustomerRef?.value ?? d.VendorRef?.value ?? null,
+          total: d.TotalAmt ?? null, balance: d.Balance ?? null, ...keysFrom(d, type), lines: linesFrom(d),
         }));
-        const { error } = await supabase.rpc("qb_docs_save", { p_docs: docs });
-        if (error) return await finish({ ok: false, docs_fetched: fetched, error: `Saving ${type} failed: ${error.message}` });
+        for (let i = 0; i < docs.length; i += 250) {
+          const { error } = await supabase.rpc("qb_docs_save", { p_docs: docs.slice(i, i + 250) });
+          if (error) return await finish({ ok: false, docs_fetched: fetched, error: `Saving ${type} failed: ${error.message}` });
+        }
         fetched += list.length;
         if (list.length < 500) break;
         start += 500;
