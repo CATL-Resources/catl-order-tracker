@@ -43,8 +43,14 @@ Non-negotiables:
   connector inside Claude. The app may CREATE ESTIMATES in QuickBooks and nothing
   else (Chandy, 2026-11-21); estimates are sent, accepted, and invoiced in QuickBooks.
 - Applying a migration through the Supabase connector: statements with DROP or
-  REVOKE raise an approval prompt that times out when nobody is watching. Write
+  REVOKE (and DELETE, even inside a function body) raise an approval prompt that times out when nobody
+  is watching; the claude.ai "Always allow" setting does not skip it. Write them another way or hand
+  Chandy the SQL to paste in the SQL Editor (she is fine doing that). Write
   them another way (an existence check, a guard inside the function) or expect to wait.
+- Notion mirror + QuickBooks comparison (2026-11-23): `notion-mirror` (every 15 min, secret
+  `NOTION_API_KEY`, read-only on Notion) fills `notion_equipment` and links `orders.notion_id`.
+  `qb-order-compare` (hourly, read-only on QuickBooks) fills `qb_docs` + `qb_doc_lines`, creates Daniels/Rawhide
+  orders from POs (`origin = 'qb_po'`), builds `unit_spec_lines`, rebuilds `qb_mismatches`. Both are in `robot_health_run`.
 - Build plan and phase prompts: `EQUIPMENT-MANAGER-PLAN.md`.
 - Schema changes go through migration files in `supabase/migrations/`, additive
   only; every data write follows rollback → guarded write → read-back.
