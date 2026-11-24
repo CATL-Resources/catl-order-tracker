@@ -83,8 +83,9 @@ Deno.serve(async (req) => {
         let siteUrl: string | null = null;
         const sitesResp = await fetch("https://www.googleapis.com/webmasters/v3/sites", { headers: { Authorization: `Bearer ${tokenData.access_token}` } });
         const sites = sitesResp.ok ? ((await sitesResp.json()).siteEntry || []) : [];
-        const mine = sites.filter((x: any) => /catlresources\.com/i.test(x.siteUrl) && x.permissionLevel !== "siteUnverifiedUser");
-        siteUrl = (mine.find((x: any) => x.siteUrl.startsWith("sc-domain:")) || mine[0])?.siteUrl || null;
+        type Site = { siteUrl: string; permissionLevel: string };
+        const mine = (sites as Site[]).filter((x) => /catlresources\.com/i.test(x.siteUrl) && x.permissionLevel !== "siteUnverifiedUser");
+        siteUrl = (mine.find((x) => x.siteUrl.startsWith("sc-domain:")) || mine[0])?.siteUrl || null;
         const { error: delErr } = await supabase.from("google_tokens_gsc").delete().not("id", "is", null);
         if (delErr) throw new Error("Could not clear the old Search Console sign-in: " + delErr.message);
         const { error: insErr } = await supabase.from("google_tokens_gsc").insert({

@@ -8,17 +8,20 @@
 // before the newest day it already has.
 // Every run is logged in gsc_pull_runs; robot_health_run() alarms if a connected pull stops working.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+type TokenRow = { id: string; account_email: string | null; access_token: string | null; refresh_token: string | null; access_token_expires_at: string | null; site_url: string | null };
+type GscRow = { keys: string[]; clicks: number; impressions: number; ctr: number; position: number };
 
 const day = (d: Date) => d.toISOString().slice(0, 10);
 
-async function freshToken(supabase: any, row: any): Promise<string> {
-  if (row.access_token && new Date(row.access_token_expires_at) > new Date(Date.now() + 60_000)) return row.access_token;
+async function freshToken(supabase: SupabaseClient, row: TokenRow): Promise<string> {
+  if (row.access_token && new Date(row.access_token_expires_at || 0) > new Date(Date.now() + 60_000)) return row.access_token;
   const cid = Deno.env.get("GOOGLE_CLIENT_ID"), cs = Deno.env.get("GOOGLE_CLIENT_SECRET");
   if (!cid || !cs) throw new Error("GOOGLE_CLIENT_ID/SECRET not set");
   const r = await fetch("https://oauth2.googleapis.com/token", {
     method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: cid, client_secret: cs, refresh_token: row.refresh_token, grant_type: "refresh_token" }),
+    body: new URLSearchParams({ client_id: cid, client_secret: cs, refresh_token: row.refresh_token || "", grant_type: "refresh_token" }),
   });
   const j = await r.json();
   if (!j.access_token) throw new Error("Google sign-in renewal failed (" + (j.error_description || j.error || r.status) + "). Press Connect Google Search Console in the Hub again.");
@@ -29,15 +32,15 @@ async function freshToken(supabase: any, row: any): Promise<string> {
   return j.access_token;
 }
 
-async function query(token: string, site: string, body: any): Promise<any[]> {
-  const out: any[] = [];
+async function query(token: string, site: string, body: Record<string, unknown>): Promise<GscRow[]> {
+  const out: GscRow[] = [];
   for (let startRow = 0; startRow < 100_000; startRow += 25_000) {
     const r = await fetch(`https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(site)}/searchAnalytics/query`, {
       method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ ...body, rowLimit: 25_000, startRow, dataState: "all" }),
     });
     if (!r.ok) throw new Error(`Search Console said ${r.status}: ${(await r.text()).slice(0, 300)}`);
-    const rows = (await r.json()).rows || [];
+    const rows: GscRow[] = (await r.json()).rows || [];
     out.push(...rows);
     if (rows.length < 25_000) break;
   }
@@ -59,7 +62,7 @@ Deno.serve(async (_req: Request) => {
       return Response.json({ ok: true, note: "Search Console not connected yet" });
     }
     if (!tok.site_url) throw new Error(`${tok.account_email} does not own catlresources.com in Search Console. Finish verification, then press Connect again.`);
-    const token = await freshToken(supabase, tok);
+    const token = await freshToken(supabase, tok as TokenRow);
 
     const { data: last, error: lastErr } = await supabase.from("search_console_daily").select("day").order("day", { ascending: false }).limit(1).maybeSingle();
     if (lastErr) throw new Error("Could not read saved days: " + lastErr.message);
@@ -71,9 +74,9 @@ Deno.serve(async (_req: Request) => {
     const totals = await query(token, tok.site_url, { ...range, dimensions: ["date"] });
     const pulled_at = new Date().toISOString();
     const rows = [
-      ...detail.map((r: any) => ({ day: r.keys[0], query: r.keys[1] || "", page: r.keys[2] || "", device: (r.keys[3] || "").toLowerCase(),
+      ...detail.map((r) => ({ day: r.keys[0], query: r.keys[1] || "", page: r.keys[2] || "", device: (r.keys[3] || "").toLowerCase(),
         clicks: r.clicks, impressions: r.impressions, ctr: r.ctr, position: r.position, pulled_at })),
-      ...totals.map((r: any) => ({ day: r.keys[0], query: "", page: "", device: "", clicks: r.clicks, impressions: r.impressions, ctr: r.ctr, position: r.position, pulled_at })),
+      ...totals.map((r) => ({ day: r.keys[0], query: "", page: "", device: "", clicks: r.clicks, impressions: r.impressions, ctr: r.ctr, position: r.position, pulled_at })),
     ];
     for (let i = 0; i < rows.length; i += 500) {
       const { error } = await supabase.from("search_console_daily").upsert(rows.slice(i, i + 500), { onConflict: "day,query,page,device" });
@@ -81,8 +84,8 @@ Deno.serve(async (_req: Request) => {
     }
     await log(true, rows.length, `${tok.site_url} ${range.startDate}..${range.endDate}`, null);
     return Response.json({ ok: true, site: tok.site_url, ...range, rows: rows.length });
-  } catch (e: any) {
-    const msg = e?.message || String(e);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e);
     console.error("[gsc] failed", msg);
     await log(false, 0, null, msg);
     return Response.json({ ok: false, error: msg }, { status: 500 });
