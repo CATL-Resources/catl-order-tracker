@@ -15,6 +15,11 @@ const SCOPES = [
   "https://www.googleapis.com/auth/userinfo.profile",
 ].join(" ");
 
+const GSC_SCOPES = [
+  "https://www.googleapis.com/auth/webmasters.readonly",
+  "https://www.googleapis.com/auth/userinfo.email",
+].join(" ");
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -33,9 +38,13 @@ Deno.serve(async (req) => {
       authUrl.searchParams.set("client_id", GOOGLE_CLIENT_ID);
       authUrl.searchParams.set("redirect_uri", redirectUri);
       authUrl.searchParams.set("response_type", "code");
-      authUrl.searchParams.set("scope", SCOPES);
+      // purpose=gsc: a SEPARATE sign-in just for Google Search Console (read-only). It is stored in
+      // google_tokens_gsc and never replaces the Drive/Gmail sign-in in google_tokens.
+      const isGsc = url.searchParams.get("purpose") === "gsc";
+      authUrl.searchParams.set("scope", isGsc ? GSC_SCOPES : SCOPES);
       authUrl.searchParams.set("access_type", "offline");
       authUrl.searchParams.set("prompt", "consent");
+      if (isGsc) authUrl.searchParams.set("state", "gsc");
 
       return new Response(JSON.stringify({ authUrl: authUrl.toString(), redirectUri }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -65,6 +74,33 @@ Deno.serve(async (req) => {
       const userResp = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", { headers: { Authorization: `Bearer ${tokenData.access_token}` } });
       const userInfo = await userResp.json();
       const expiresAt = new Date(Date.now() + (tokenData.expires_in || 3600) * 1000).toISOString();
+
+      if (url.searchParams.get("state") === "gsc") {
+        if (!tokenData.refresh_token) {
+          return new Response(`<html><body><h2>Google did not give a lasting sign-in</h2><p>Remove "CATL" from https://myaccount.google.com/permissions for ${userInfo.email || "this account"}, then press Connect again.</p></body></html>`, { headers: { "Content-Type": "text/html" } });
+        }
+        // Find the catlresources.com property this account can see in Search Console.
+        let siteUrl: string | null = null;
+        const sitesResp = await fetch("https://www.googleapis.com/webmasters/v3/sites", { headers: { Authorization: `Bearer ${tokenData.access_token}` } });
+        const sites = sitesResp.ok ? ((await sitesResp.json()).siteEntry || []) : [];
+        type Site = { siteUrl: string; permissionLevel: string };
+        const mine = (sites as Site[]).filter((x) => /catlresources\.com/i.test(x.siteUrl) && x.permissionLevel !== "siteUnverifiedUser");
+        siteUrl = (mine.find((x) => x.siteUrl.startsWith("sc-domain:")) || mine[0])?.siteUrl || null;
+        const { error: delErr } = await supabase.from("google_tokens_gsc").delete().not("id", "is", null);
+        if (delErr) throw new Error("Could not clear the old Search Console sign-in: " + delErr.message);
+        const { error: insErr } = await supabase.from("google_tokens_gsc").insert({
+          account_email: userInfo.email || "unknown", access_token: tokenData.access_token, refresh_token: tokenData.refresh_token,
+          access_token_expires_at: expiresAt, site_url: siteUrl, updated_at: new Date().toISOString(),
+        });
+        if (insErr) throw new Error("Could not save the Search Console sign-in: " + insErr.message);
+        const note = siteUrl
+          ? `Search Console property: ${siteUrl}. Google's numbers will appear in the Hub after tomorrow morning's pull.`
+          : `Signed in, but this account does not own catlresources.com in Search Console yet. Finish the Search Console verification, then press Connect again.`;
+        return new Response(
+          `<html><body style="font-family:Arial,sans-serif;max-width:520px;margin:80px auto;text-align:center;"><h2 style="color:#0E2646;">Search Console Connected</h2><p style="color:#55BAAA;font-size:18px;">&#10004; ${userInfo.email}</p><p style="color:#717182;">${note}</p><p style="color:#717182;">This did not change the Gmail / Drive sign-in. You can close this window.</p></body></html>`,
+          { headers: { "Content-Type": "text/html" } }
+        );
+      }
 
       await supabase.from("google_tokens").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       await supabase.from("google_tokens").insert({

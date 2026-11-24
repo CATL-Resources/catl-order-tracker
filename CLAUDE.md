@@ -51,6 +51,11 @@ Non-negotiables:
   `NOTION_API_KEY`, read-only on Notion) fills `notion_equipment` and links `orders.notion_id`.
   `qb-order-compare` (hourly, read-only on QuickBooks) fills `qb_docs` + `qb_doc_lines`, creates Daniels/Rawhide
   orders from POs (`origin = 'qb_po'`), builds `unit_spec_lines`, rebuilds `qb_mismatches`. Both are in `robot_health_run`.
+- Search Console (2026-11-23): `gsc-pull` (daily 14:37 UTC, pg_cron `gsc-pull-daily`, read-only on Google) fills
+  `search_console_daily` and logs `gsc_pull_runs`. Its Google sign-in is `google_tokens_gsc`, made by
+  `google-oauth-callback?action=auth_url&purpose=gsc` (Hub button) — it never replaces `google_tokens` (Tim's Drive/Gmail).
+  Needs "Google Search Console API" enabled in the Google Cloud project that owns GOOGLE_CLIENT_ID. robot_health_run has
+  `gsc_pull` (only alarms once connected) and `site_visits` (no website visit counted in 48h, from 2026-11-27).
 - Build plan and phase prompts: `EQUIPMENT-MANAGER-PLAN.md`.
 - Schema changes go through migration files in `supabase/migrations/`, additive
   only; every data write follows rollback → guarded write → read-back.
