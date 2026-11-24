@@ -61,8 +61,20 @@ Deno.serve(async (_req: Request) => {
       await log(true, 0, "Not connected yet", null);
       return Response.json({ ok: true, note: "Search Console not connected yet" });
     }
-    if (!tok.site_url) throw new Error(`${tok.account_email} does not own catlresources.com in Search Console. Finish verification, then press Connect again.`);
     const token = await freshToken(supabase, tok as TokenRow);
+    // Find the catlresources.com property on every run until it is known (the sign-in may happen
+    // before Google has finished switching on the Search Console API for the project).
+    if (!tok.site_url) {
+      const sr = await fetch("https://www.googleapis.com/webmasters/v3/sites", { headers: { Authorization: `Bearer ${token}` } });
+      if (!sr.ok) throw new Error(`Search Console would not list properties (${sr.status}): ${(await sr.text()).slice(0, 300)}`);
+      const sites = ((await sr.json()).siteEntry || []) as { siteUrl: string; permissionLevel: string }[];
+      const mine = sites.filter((x) => /catlresources\.com/i.test(x.siteUrl) && x.permissionLevel !== "siteUnverifiedUser");
+      const found = (mine.find((x) => x.siteUrl.startsWith("sc-domain:")) || mine[0])?.siteUrl;
+      if (!found) throw new Error(`${tok.account_email} sees ${sites.length} Search Console properties but none is catlresources.com.`);
+      const { error: upErr } = await supabase.from("google_tokens_gsc").update({ site_url: found }).eq("id", tok.id);
+      if (upErr) throw new Error("Could not save the property name: " + upErr.message);
+      tok.site_url = found;
+    }
 
     const { data: last, error: lastErr } = await supabase.from("search_console_daily").select("day").order("day", { ascending: false }).limit(1).maybeSingle();
     if (lastErr) throw new Error("Could not read saved days: " + lastErr.message);

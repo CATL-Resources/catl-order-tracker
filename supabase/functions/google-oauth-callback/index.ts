@@ -93,13 +93,8 @@ Deno.serve(async (req) => {
           access_token_expires_at: expiresAt, site_url: siteUrl, updated_at: new Date().toISOString(),
         });
         if (insErr) throw new Error("Could not save the Search Console sign-in: " + insErr.message);
-        const note = siteUrl
-          ? `Search Console property: ${siteUrl}. Google's numbers will appear in the Hub after tomorrow morning's pull.`
-          : `Signed in, but this account does not own catlresources.com in Search Console yet. Finish the Search Console verification, then press Connect again.`;
-        return new Response(
-          `<html><body style="font-family:Arial,sans-serif;max-width:520px;margin:80px auto;text-align:center;"><h2 style="color:#0E2646;">Search Console Connected</h2><p style="color:#55BAAA;font-size:18px;">&#10004; ${userInfo.email}</p><p style="color:#717182;">${note}</p><p style="color:#717182;">This did not change the Gmail / Drive sign-in. You can close this window.</p></body></html>`,
-          { headers: { "Content-Type": "text/html" } }
-        );
+        // Supabase shows HTML from its own address as raw code, so send the person back to the Hub screen instead.
+        return Response.redirect(`https://catlapp.com/equipment/website-analytics?gsc=${siteUrl ? "connected" : "finding"}`, 302);
       }
 
       await supabase.from("google_tokens").delete().neq("id", "00000000-0000-0000-0000-000000000000");
